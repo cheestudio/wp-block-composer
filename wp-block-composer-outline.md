@@ -1,11 +1,11 @@
-# WP Block Builder — Build Plan
+# WP Block Composer — Build Plan
 > Nuxt 3 · NuxtUI v3 · Anthropic Claude · Open Source
 
 ---
 
 ## 0. Project Overview
 
-**WP Block Builder** is an open-source, hosted web application that allows WordPress developers to compose a Gutenberg block component tree through a guided UI, configure all block options and `block.json` settings, and generate production-ready WordPress block scaffolding.
+**WP Block Composer** is an open-source, hosted web application that allows WordPress developers to compose a Gutenberg block component tree through a guided UI, configure all block options and `block.json` settings, and generate production-ready WordPress block scaffolding.
 
 ### What it produces
 - `block.json` — valid WP Block API v3 schema
@@ -50,92 +50,113 @@ This tool generates **structural boilerplate only**. It does not write CSS, prod
 ## 2. Repository Structure
 
 ```
-wp-block-builder/
+wp-block-composer/
 │
-├── assets/
-│   └── css/
-│       └── app.css                       # Tailwind directives + custom CSS tokens
+└── app/
+    ├── assets/
+    │   └── css/
+    │       └── main.css                   # Tailwind directives + custom CSS tokens
+    │
+    ├── components/
+    │   ├── ComponentBuilder.vue          # Root of Step 1: assembles picker + list
+    │   ├── ComponentOrderList.vue        # vue-draggable-plus drag/nest/reorder list
+    │   ├── ComponentPickerModal.vue      # UModal + UCommandPalette + dynamic options form
+    │   ├── BlockTypeToggle.vue           # Static vs Dynamic UButtonGroup
+    │   ├── BlockMetaForm.vue             # Name, title, category, icon, keywords, etc.
+    │   ├── BlockJsonConfigurator.vue     # Full block.json UI — UAccordion sections
+    │   ├── JsonLivePreview.vue           # Sticky computed block.json preview panel
+    │   ├── GenerationFilePicker.vue      # File checklist with [T]/[AI] badges
+    │   ├── PRDPreview.vue                # Collapsible PRD sections with Edit links
+    │   ├── CodeOutput.vue                # CodeMirror 6 instance wrapper
+    │   └── ConfirmModal.vue              # Reusable UModal confirm/cancel dialog
+    │
+    ├── composables/
+    │   ├── useComponentRegistry.ts       # Registry search + lookup
+    │   ├── useSSE.ts                     # SSE stream consumer → populates outputStore
+    │   └── useCodeMirror.ts              # CodeMirror 6 setup, language detection, cleanup
+    │
+    ├── layouts/
+    │   └── default.vue                   # App shell: UStepper + UNotifications + NuxtPage
+    │
+    ├── middleware/
+    │   ├── requireComponents.ts          # Guards /configure — requires componentStore populated
+    │   ├── requireConfig.ts              # Guards /generate — requires blockConfigStore valid
+    │   └── requireGenerate.ts            # Guards /output — requires generation triggered
+    │
+    ├── pages/                            # File-based routing — no router config needed
+    │   ├── index.vue                     # Redirects to /build
+    │   ├── build.vue                     # Step 1: Component tree composition
+    │   ├── configure.vue                 # Step 2: Block type + block.json configuration
+    │   ├── generate.vue                  # Step 3: PRD preview + file selection + trigger
+    │   └── output.vue                    # Step 4: Code tabs + download
+    │
+    ├── plugins/
+    │
+    ├── utils/
+    │
+    ├── stores/                           # @pinia/nuxt — auto-imported
+    │   ├── componentStore.ts
+    │   ├── blockConfigStore.ts
+    │   └── outputStore.ts
+    │
+    ├── server/
+    │   ├── api/
+    │   │   ├── generate.post.ts          # SSE handler: template engine + LLM stream
+    │   │   └── download/
+    │   │       └── [bundleId].get.ts     # Streams zip file to client
+    │   └── services/
+    │       ├── prdBuilder.ts             # Assembles PRD markdown from payload
+    │       ├── templateEngine/
+    │       │   ├── index.ts              # Orchestrator — returns { files, deferredToLLM }
+    │       │   ├── blockJson.ts          # Generates block.json
+    │       │   ├── indexJs.ts            # Generates index.js
+    │       │   ├── renderPhp.ts          # Generates render.php (dynamic blocks)
+    │       │   ├── styleScss.ts          # Generates style.scss BEM scaffold
+    │       │   ├── editorScss.ts         # Generates editor.scss scaffold
+    │       │   └── saveJs.ts             # Generates save.js (flat blocks only)
+    │       ├── claudeClient.ts           # Anthropic SDK streaming wrapper
+    │       ├── promptTemplates.ts        # System prompt + per-file instructions
+    │       ├── codeParser.ts             # Extracts <file> blocks from Claude response
+    │       └── zipBuilder.ts             # Builds downloadable zip bundle
+    │
+    ├── shared/
+    │   └── wpComponentRegistry.ts        # Component definitions — used by both sides
+    │
+    ├── tests/
+    │   └── templateEngine/
+    │       ├── blockJson.test.ts
+    │       ├── indexJs.test.ts
+    │       ├── renderPhp.test.ts
+    │       ├── styleScss.test.ts
+    │       └── saveJs.test.ts
+    │
+    ├── public/
+    ├── app.vue                           # Root: <NuxtLayout> + <NuxtPage>
+    ├── app.config.ts
+    ├── error.vue
+    │
+    ├── nuxt.config.ts
+    ├── package.json
+    ├── tsconfig.json
+    ├── .env
+    ├── .gitignore
+    ├── .nuxtignore
+    └── nuxtrc
 │
-├── components/                           # Auto-imported by Nuxt
-│   ├── ComponentBuilder.vue              # Root of Step 1: assembles picker + list
-│   ├── ComponentOrderList.vue            # vue-draggable-plus drag/nest/reorder list
-│   ├── ComponentPickerModal.vue          # UModal + UCommandPalette + dynamic options form
-│   ├── BlockTypeToggle.vue               # Static vs Dynamic UButtonGroup
-│   ├── BlockMetaForm.vue                 # Name, title, category, icon, keywords, etc.
-│   ├── BlockJsonConfigurator.vue         # Full block.json UI — UAccordion sections
-│   ├── JsonLivePreview.vue               # Sticky computed block.json preview panel
-│   ├── GenerationFilePicker.vue          # File checklist with [T]/[AI] badges
-│   ├── PRDPreview.vue                    # Collapsible PRD sections with Edit links
-│   ├── CodeOutput.vue                    # CodeMirror 6 instance wrapper
-│   └── ConfirmModal.vue                  # Reusable UModal confirm/cancel dialog
-│
-├── composables/                          # Auto-imported by Nuxt
-│   ├── useComponentRegistry.ts           # Registry search + lookup
-│   ├── useSSE.ts                         # SSE stream consumer → populates outputStore
-│   └── useCodeMirror.ts                  # CodeMirror 6 setup, language detection, cleanup
-│
-├── layouts/
-│   └── default.vue                       # App shell: UStepper + UNotifications + NuxtPage
-│
-├── middleware/
-│   ├── requireComponents.ts              # Guards /configure — requires componentStore populated
-│   ├── requireConfig.ts                  # Guards /generate — requires blockConfigStore valid
-│   └── requireGenerate.ts               # Guards /output — requires generation triggered
-│
-├── pages/                                # File-based routing — no router config needed
-│   ├── index.vue                         # Redirects to /build
-│   ├── build.vue                         # Step 1: Component tree composition
-│   ├── configure.vue                     # Step 2: Block type + block.json configuration
-│   ├── generate.vue                      # Step 3: PRD preview + file selection + trigger
-│   └── output.vue                        # Step 4: Code tabs + download
-│
-├── stores/                               # @pinia/nuxt — auto-imported
-│   ├── componentStore.ts
-│   ├── blockConfigStore.ts
-│   └── outputStore.ts
-│
-├── server/
-│   ├── api/
-│   │   ├── generate.post.ts              # SSE handler: template engine + LLM stream
-│   │   └── download/
-│   │       └── [bundleId].get.ts         # Streams zip file to client
-│   └── services/
-│       ├── prdBuilder.ts                 # Assembles PRD markdown from payload
-│       ├── templateEngine/
-│       │   ├── index.ts                  # Orchestrator — returns { files, deferredToLLM }
-│       │   ├── blockJson.ts              # Generates block.json
-│       │   ├── indexJs.ts                # Generates index.js
-│       │   ├── renderPhp.ts              # Generates render.php (dynamic blocks)
-│       │   ├── styleScss.ts              # Generates style.scss BEM scaffold
-│       │   ├── editorScss.ts             # Generates editor.scss scaffold
-│       │   └── saveJs.ts                 # Generates save.js (flat blocks only)
-│       ├── claudeClient.ts               # Anthropic SDK streaming wrapper
-│       ├── promptTemplates.ts            # System prompt + per-file instructions
-│       ├── codeParser.ts                 # Extracts <file> blocks from Claude response
-│       └── zipBuilder.ts                 # Builds downloadable zip bundle
-│
-├── shared/
-│   └── wpComponentRegistry.ts            # Component definitions — used by both sides
-│
-├── tests/
-│   └── templateEngine/
-│       ├── blockJson.test.ts
-│       ├── indexJs.test.ts
-│       ├── renderPhp.test.ts
-│       ├── styleScss.test.ts
-│       └── saveJs.test.ts
-│
+├── content/
+├── layers/
+├── modules/
+├── node_modules/
 ├── public/
-├── app.vue                               # Root: <NuxtLayout> + <NuxtPage>
+├── server/
+├── shared/
+├── .env
+├── .gitignore
+├── .nuxtignore
 ├── nuxt.config.ts
 ├── package.json
 ├── tsconfig.json
-├── Dockerfile
-├── .env.example
-├── CONTRIBUTING.md
-├── LICENSE
 └── README.md
-```
 
 ---
 
@@ -675,8 +696,6 @@ Phases are ordered so each one leaves the application in a runnable, testable st
 - `layouts/default.vue` — `<UStepper>` + `<UNotifications>` + `<NuxtPage>`; stepper driven by current route
 - `app.vue` — `<NuxtLayout>` + `<NuxtPage>`
 - `shared/wpComponentRegistry.ts` — all TypeScript interfaces + minimum 20 registry entries with all required flags
-- `Dockerfile` — `nuxt build` + `node .output/server/index.mjs`; single container
-- `README.md` — setup, local dev, environment variables, Docker instructions
 - `.env.example`
 
 **Acceptance criteria:**
@@ -684,7 +703,6 @@ Phases are ordered so each one leaves the application in a runnable, testable st
 - NuxtUI components render (test with a `<UButton>` on index page)
 - `shared/wpComponentRegistry.ts` exports 20+ typed entries
 - `<UStepper>` visible in default layout
-- `Dockerfile` builds successfully
 
 ---
 
@@ -882,7 +900,6 @@ Phases are ordered so each one leaves the application in a runnable, testable st
 - `LICENSE` — MIT
 - GitHub issue templates: Bug Report, Feature Request, Registry Entry Request
 - CI: GitHub Actions workflow — `nuxt build` check + `vitest run` on every PR
-- `README.md` — complete self-host guide; Docker instructions; env var reference; local dev steps
 
 **Acceptance criteria:**
 - No console errors or warnings in happy path (both static and dynamic block generation)
@@ -914,7 +931,7 @@ Phases are ordered so each one leaves the application in a runnable, testable st
 
 | Phase | Done When |
 |---|---|
-| 1 | `nuxt dev` starts; NuxtUI renders; registry has 20+ typed entries; `<UStepper>` visible; Docker build passes |
+| 1 | `nuxt dev` starts; NuxtUI renders; registry has 20+ typed entries; `<UStepper>` visible;
 | 2 | Full component tree CRUD works; drag reorder correct; nesting via indent/outdent correct; `asTree()` matches visual state; route guard works |
 | 3 | All `block.json` fields configurable; live preview real-time and validated; Zod errors surface; route guard works |
 | 4 | PRD accurately reflects store state; file checklist badges correct; generate button gating works; SSE connection initiates on click |

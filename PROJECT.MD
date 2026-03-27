@@ -1,5 +1,6 @@
-# WP Block Builder — Project Build Plan
+# WP Block Composer — Project Build Plan
 
+> **Project Outline** @wp-block-composer-outline.md
 > **Status:** Phase 1 — Project Scaffold
 > **Started:** 2026-03-27
 > **Stack:** Nuxt 3 / NuxtUI v3 / Pinia / Anthropic Claude / Vitest
@@ -8,7 +9,7 @@
 
 ## Overview
 
-WP Block Builder is an open-source web application that guides WordPress developers through composing a Gutenberg block component tree, configuring all `block.json` settings, and generating production-ready block scaffolding via a hybrid template engine + LLM pipeline.
+WP Block Composer is an open-source web application that guides WordPress developers through composing a Gutenberg block component tree, configuring all `block.json` settings, and generating production-ready block scaffolding via a hybrid template engine + LLM pipeline.
 
 **Hybrid generation model:**
 - **Template engine** (deterministic, instant, free): `block.json`, `index.js`, `render.php`, `style.scss`, `editor.scss`, flat `save.js`
