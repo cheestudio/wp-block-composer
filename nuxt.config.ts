@@ -12,18 +12,20 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
+  runtimeConfig: {
+    // Server-only — never exposed to client
+    anthropicApiKey: '',
+    claudeModel: 'claude-sonnet-4-20250514',
+    claudeMaxTokens: 8000,
+    bundleDir: './.bundles',
+    bundleTtlMs: 3600000,
+    public: {}
+  },
+
+  typescript: {
+    strict: true
   },
 
   compatibilityDate: '2025-01-15',
 
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs'
-      }
-    }
-  }
 })

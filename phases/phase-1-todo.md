@@ -10,7 +10,7 @@
 
 - [X] **1.1** Initialize Nuxt 3 project with TypeScript (`npx nuxi init`)
 - [X] **1.2** Verify project runs with `nuxt dev`
-- [ ] **1.3** Configure `tsconfig.json` with strict mode
+- [X] **1.3** Configure `tsconfig.json` with strict mode
 
 ## 2. Dependency Installation
 
@@ -42,7 +42,7 @@
 
 ## 3. Nuxt Configuration
 
-- [ ] **3.1** Configure `nuxt.config.ts`:
+- [X] **3.1** Configure `nuxt.config.ts`:
   - Add full `runtimeConfig`:
     - `anthropicApiKey` (server-only, maps from `NUXT_ANTHROPIC_API_KEY`)
     - `claudeModel` (default: `claude-sonnet-4-20250514`)
@@ -50,48 +50,48 @@
     - `bundleDir` (default: `./.bundles`)
     - `bundleTtlMs` (default: `3600000`)
     - `public: {}` (empty — no client-side runtime config)
-- [ ] **3.2** Create `.env.example` with all env vars documented
-- [ ] **3.3** Verify `runtimeConfig` values accessible in a test server route
+- [X] **3.2** Create `.env.example` with all env vars documented
+- [X] **3.3** Verify `runtimeConfig` values accessible in a test server route
 
 ## 4. App Shell & Layout
 
-- [ ] **5.1** Create `app.vue` — `<NuxtLayout>` + `<NuxtPage>`
-- [ ] **5.2** Create `layouts/default.vue`:
+- [X] **5.1** Create `app.vue` — `<NuxtLayout>` + `<NuxtPage>`
+- [X] **5.2** Create `layouts/default.vue`:
   - `<UStepper>` with 4 steps: Build, Configure, Generate, Output
   - Stepper driven by current route (highlight active step)
   - `<UNotifications>` mounted once for app-wide toasts
   - `<NuxtPage>` for page content
   - Clean, centered layout wrapper
-- [ ] **5.3** Verify `<UStepper>` renders and highlights based on current route
+- [X] **5.3** Verify `<UStepper>` renders and highlights based on current route
 
 ## 5. Page Stubs
 
-- [ ] **6.1** Create `pages/index.vue` — redirect to `/build`
-- [ ] **6.2** Create `pages/build.vue` — Step 1 placeholder with title and description
-- [ ] **6.3** Create `pages/configure.vue` — Step 2 placeholder with title and description
-- [ ] **6.4** Create `pages/generate.vue` — Step 3 placeholder with title and description
-- [ ] **6.5** Create `pages/output.vue` — Step 4 placeholder with title and description
-- [ ] **6.6** Verify navigation between all 4 pages works; stepper updates accordingly
+- [X] **6.1** Create `pages/index.vue` — redirect to `/build`
+- [X] **6.2** Create `pages/build.vue` — Step 1 placeholder with title and description
+- [X] **6.3** Create `pages/configure.vue` — Step 2 placeholder with title and description
+- [X] **6.4** Create `pages/generate.vue` — Step 3 placeholder with title and description
+- [X] **6.5** Create `pages/output.vue` — Step 4 placeholder with title and description
+- [X] **6.6** Verify navigation between all 4 pages works; stepper updates accordingly
 
 ## 6. WordPress Component Registry
 
-- [ ] **7.1** Create `shared/wpComponentRegistry.ts` with TypeScript interfaces:
+- [X] **7.1** Create `shared/wpComponentRegistry.ts` with TypeScript interfaces:
   - `RegistryEntry` — `name`, `label`, `category`, `color`, `canHaveChildren`, `innerBlocksRequired`, `saveJsTemplate`, `options[]`
   - `RegistryOption` — `key`, `label`, `type` (`select`/`boolean`/`text`/`number`/`color`), `choices?`, `default?`
   - Category type: `'text' | 'media' | 'layout' | 'interactive' | 'embed'`
-- [ ] **7.2** Populate minimum 20 registry entries with all required flags:
+- [X] **7.2** Populate minimum 20 registry entries with all required flags:
   - **Text:** `core/paragraph`, `core/heading`, `core/list`, `core/list-item`, `core/quote`, `core/html`
   - **Media:** `core/image`, `core/video`, `core/audio`, `core/file`, `core/gallery`
   - **Layout:** `core/group`, `core/columns`, `core/column`, `core/cover`, `core/media-text`, `core/buttons`, `core/button`, `core/separator`, `core/spacer`
   - **Interactive:** `core/search`, `core/navigation`
   - **Embed:** `core/embed`, `core/shortcode`
-- [ ] **7.3** For each entry, configure:
-  - `canHaveChildren` — `true` for containers (group, columns, column, cover, media-text, buttons, list, navigation)
+- [X] **7.3** For each entry, configure:
+  - `canHaveChildren` — `true` for containers (group, columns, column, cover, media-text, buttons, list, navigation, gallery)
   - `innerBlocksRequired` — `true` for components that require InnerBlocks in save.js
   - `saveJsTemplate` — JSX snippet for flat save.js generation
   - `options[]` — component-specific configuration options with correct types and choices
-- [ ] **7.4** Export typed registry array and lookup helper functions
-- [ ] **7.5** Verify registry is importable from both `pages/` (client) and `server/` (server) via `shared/` directory
+- [X] **7.4** Export typed registry array and lookup helper functions
+- [X] **7.5** Verify registry is importable from both `pages/` (client) and `server/` (server) via `shared/` directory
 
 ---
 

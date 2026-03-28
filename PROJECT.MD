@@ -51,11 +51,11 @@ WP Block Composer is an open-source web application that guides WordPress develo
 
 **Acceptance criteria:**
 - [X] `nuxt dev` starts without errors
-- [ ] NuxtUI components render (visible `<UButton>` on a page)
-- [ ] `shared/wpComponentRegistry.ts` exports 20+ typed entries
-- [ ] `<UStepper>` visible in default layout, reflects current route
-- [ ] Navigating between `/build`, `/configure`, `/generate`, `/output` works
-- [ ] TypeScript: `pnpm typecheck` passes
+- [X] NuxtUI components render (visible `<UButton>` on a page)
+- [X] `shared/wpComponentRegistry.ts` exports 20+ typed entries
+- [X] `<UStepper>` visible in default layout, reflects current route
+- [X] Navigating between `/build`, `/configure`, `/generate`, `/output` works
+- [X] TypeScript: `pnpm typecheck` passes
 
 **Dependencies:** None (first phase)
 
