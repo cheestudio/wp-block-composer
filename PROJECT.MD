@@ -9,11 +9,13 @@
 
 ## Overview
 
-WP Block Composer is an open-source web application that guides WordPress developers through composing a Gutenberg block component tree, configuring all `block.json` settings, and generating production-ready block scaffolding via a hybrid template engine + LLM pipeline.
+WP Block Composer is an open-source web application that guides WordPress developers through composing a custom Gutenberg block's editor interface by selecting from WordPress' developer component library (`@wordpress/block-editor` and `@wordpress/components` — documented at [wp-gb.com](https://wp-gb.com/)), configuring all `block.json` settings, and generating production-ready block scaffolding via a hybrid template engine + LLM pipeline.
+
+The developer builds a **component tree representing the block's `edit.js` structure** — selecting developer-facing editor components like `RichText`, `InspectorControls`, `MediaUpload`, `TextControl`, `ColorPalette`, etc. and arranging them into the nesting hierarchy that mirrors the JSX tree of the finished block.
 
 **Hybrid generation model:**
-- **Template engine** (deterministic, instant, free): `block.json`, `index.js`, `render.php`, `style.scss`, `editor.scss`, flat `save.js`
-- **Claude LLM** (streamed, API cost): `edit.js`, nested `save.js`, `view.js`
+- **Template engine** (deterministic, instant, free): `block.json`, `index.js`, `render.php`, `style.scss`, `editor.scss`, simple `save.js`
+- **Claude LLM** (streamed, API cost): `edit.js` (blueprint from component tree), `save.js` (when tree contains save-side components like `RichText`/`InnerBlocks`), `view.js`
 
 ---
 
@@ -36,7 +38,7 @@ WP Block Composer is an open-source web application that guides WordPress develo
 
 ## Phase 1 — Project Scaffold
 
-**Goal:** A running Nuxt 3 app with all dependencies installed, core configuration in place, the shared WP component registry fully typed and populated, and the app shell rendering with step navigation.
+**Goal:** A running Nuxt 3 app with all dependencies installed, core configuration in place, the shared `@wordpress/*` developer component registry fully typed and populated, and the app shell rendering with step navigation.
 
 **Key deliverables:**
 - Nuxt 3 project initialized with TypeScript
@@ -45,14 +47,14 @@ WP Block Composer is an open-source web application that guides WordPress develo
 - `assets/css/app.css` with Tailwind directives and base design tokens
 - `layouts/default.vue` with `<UStepper>` (4 steps driven by route), `<UNotifications>`, and `<NuxtPage>`
 - `app.vue` root component
-- `shared/wpComponentRegistry.ts` — full TypeScript interfaces (`RegistryEntry`, `RegistryOption`) + 20+ component entries with all flags (`canHaveChildren`, `innerBlocksRequired`, `saveJsTemplate`, `options[]`)
+- `shared/wpComponentRegistry.ts` — full TypeScript interfaces (`RegistryEntry`, `RegistryOption`, `ComponentCategory`, `ComponentContext`) + 50+ developer component entries from `@wordpress/block-editor` and `@wordpress/components` with all fields (`package`, `context`, `canHaveChildren`, `description`, `options[]`)
 - 4 page stubs (`pages/index.vue`, `build.vue`, `configure.vue`, `generate.vue`, `output.vue`)
 - `.env.example` with all env vars documented
 
 **Acceptance criteria:**
 - [X] `nuxt dev` starts without errors
 - [X] NuxtUI components render (visible `<UButton>` on a page)
-- [X] `shared/wpComponentRegistry.ts` exports 20+ typed entries
+- [ ] `shared/wpComponentRegistry.ts` exports 50+ typed developer component entries from `@wordpress/block-editor` and `@wordpress/components`
 - [X] `<UStepper>` visible in default layout, reflects current route
 - [X] Navigating between `/build`, `/configure`, `/generate`, `/output` works
 - [X] TypeScript: `pnpm typecheck` passes
@@ -63,22 +65,22 @@ WP Block Composer is an open-source web application that guides WordPress develo
 
 ## Phase 2 — Component Builder
 
-**Goal:** A fully functional component tree builder on `/build` — users can search the WP registry, add components with configured options, reorder via drag-and-drop, nest via indent/outdent, and edit/duplicate/delete any component.
+**Goal:** A fully functional developer component tree builder on `/build` — users can search the `@wordpress/*` component registry, add developer components (`RichText`, `InspectorControls`, `TextControl`, etc.) with configured props, reorder via drag-and-drop, nest via indent/outdent to compose the `edit.js` JSX structure, and edit/duplicate/delete any component.
 
 **Key deliverables:**
 - `stores/componentStore.ts` — full Pinia store with CRUD actions + computed (`asTree()`, `isFlat()`, `hasContainerWithoutChildren()`)
-- `composables/useComponentRegistry.ts` — search/filter/lookup against the registry
-- `components/ComponentPickerModal.vue` — `<UModal>` + `<UCommandPalette>` search + dynamic options form + notes field
-- `components/ComponentOrderList.vue` — `<VueDraggable>` list with `<UCard>` rows, indent/outdent, edit/duplicate/delete actions
+- `composables/useComponentRegistry.ts` — search/filter/lookup against the `@wordpress/*` developer component registry
+- `components/ComponentPickerModal.vue` — `<UModal>` + `<UCommandPalette>` search (grouped by category: `block-editor`, `controls`, `color`, `layout`, `feedback`) + dynamic props form + notes field; shows package source and context indicator
+- `components/ComponentOrderList.vue` — `<VueDraggable>` list with `<UCard>` rows showing component name, package, context, indent/outdent, edit/duplicate/delete actions
 - `components/ComponentBuilder.vue` — root component assembling picker + list + "Add Component" CTA
 - `pages/build.vue` — composes `ComponentBuilder`
 - `middleware/requireComponents.ts` — route guard blocking `/configure` when store is empty
 
 **Acceptance criteria:**
-- [ ] Can add 5+ components including nested containers
+- [ ] Can add 5+ developer components including nested containers (e.g., `InspectorControls` → `PanelBody` → `TextControl`)
 - [ ] Drag-to-reorder correctly updates component order
-- [ ] Indent/outdent correctly sets/clears `parentId`; indent disabled when row above is a leaf
-- [ ] `asTree()` output correctly mirrors visual nesting
+- [ ] Indent/outdent correctly sets/clears `parentId`; indent disabled when row above is a leaf component
+- [ ] `asTree()` output correctly mirrors visual nesting (represents the edit.js JSX hierarchy)
 - [ ] Empty-container `<UAlert>` appears/disappears correctly
 - [ ] Edit re-opens modal pre-populated with current values
 - [ ] Duplicate creates an independent copy
@@ -138,7 +140,7 @@ WP Block Composer is an open-source web application that guides WordPress develo
 
 **Acceptance criteria:**
 - [ ] PRD accurately reflects all `componentStore` and `blockConfigStore` state
-- [ ] Component tree section renders correct indentation hierarchy
+- [ ] Component tree section renders correct indentation hierarchy with `@wordpress/*` package sources
 - [ ] File checklist shows correct `[T]`/`[AI]` badges; `render.php` hidden for static blocks
 - [ ] Generate button disabled until name + title + at least one component + at least one file selected
 - [ ] Clicking Generate initiates SSE connection and transitions `outputStore.status`
@@ -172,7 +174,7 @@ WP Block Composer is an open-source web application that guides WordPress develo
 - [ ] All Vitest unit tests pass (`pnpm test`)
 - [ ] `blockJson.ts` output is valid WP Block API v3 JSON
 - [ ] `renderPhp.ts` applies correct escaping: `esc_html()` for strings, `esc_url()` for URLs, `wp_kses_post()` for HTML, `(bool)` cast for booleans, `intval()`/`floatval()` for numbers, `wp_json_encode()` for arrays/objects
-- [ ] `saveJs.ts` flat detection: all top-level = flat (template), any nested = deferred, any `innerBlocksRequired` = deferred
+- [ ] `saveJs.ts` deferral logic: tree contains `InnerBlocks` = deferred, tree contains `RichText` = deferred, tree contains only inspector/toolbar controls with no save-side components = template
 - [ ] Orchestrator returns correct `{ files, deferredToLLM }` for both static and dynamic payloads
 - [ ] TypeScript: `pnpm typecheck` passes
 
@@ -195,7 +197,7 @@ WP Block Composer is an open-source web application that guides WordPress develo
 
 **Acceptance criteria:**
 - [ ] `template-file` events arrive and populate `outputStore.templateFiles` before Claude call begins
-- [ ] Claude streams `edit.js`; tokens appear in `outputStore.streamBuffer`
+- [ ] Claude streams `edit.js` from component tree blueprint; tokens appear in `outputStore.streamBuffer`
 - [ ] `llm-file` event fires when Claude response is complete and parsed
 - [ ] `outputStore.generatedFiles` correctly merges template + LLM files
 - [ ] `done` event delivers `bundleId`; ZIP downloads with correct directory structure
@@ -294,7 +296,7 @@ Phase 1 (Scaffold)
 These apply to every phase:
 
 - **TypeScript strict mode** — run `pnpm typecheck` after every task
-- **NuxtUI components** — always use specified NuxtUI components per the [Component Map](wp-block-builder-outline.md#5-nuxtui-component-map); never substitute raw HTML
+- **NuxtUI components** — always use specified NuxtUI components per the [Component Map](wp-block-composer-outline.md#5-nuxtui-component-map); never substitute raw HTML
 - **Server-only secrets** — `anthropicApiKey` must never appear in client bundle or network requests
 - **No visual CSS** — SCSS output is BEM naming scaffolds only; no colors, sizes, or visual values
 - **Composition API** — all Vue components use `<script setup lang="ts">`
@@ -311,7 +313,7 @@ These apply to every phase:
 | `render.php` | Template engine | Dynamic blocks only | Free |
 | `style.scss` | Template engine | Always | Free |
 | `editor.scss` | Template engine | If selected | Free |
-| `save.js` | Template engine | Flat blocks (depth 1, no InnerBlocks) | Free |
-| `save.js` | Claude LLM | Nested or InnerBlocks required | API |
-| `edit.js` | Claude LLM | Always (when selected) | API |
+| `save.js` | Template engine | No save-side components (`InnerBlocks`, `RichText`) in tree | Free |
+| `save.js` | Claude LLM | Tree contains `InnerBlocks`, `RichText`, or other save-side components | API |
+| `edit.js` | Claude LLM | Always (when selected) — component tree provides JSX blueprint | API |
 | `view.js` | Claude LLM | If selected | API |
