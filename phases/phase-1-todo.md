@@ -1,8 +1,8 @@
 # Phase 1 — Project Scaffold
 
 > **Status:** `pending`
-> **Goal:** A running Nuxt 3 app with all dependencies, core configuration, shared registry, app shell with step navigation, and Docker support.
-> **Acceptance:** `nuxt dev` starts, NuxtUI renders, 20+ registry entries, `<UStepper>` visible, Docker builds, `pnpm typecheck` passes.
+> **Goal:** A running Nuxt 3 app with all dependencies, core configuration, shared @wordpress/* developer component registry, app shell with step navigation, and Docker support.
+> **Acceptance:** `nuxt dev` starts, NuxtUI renders, 50+ developer component registry entries, `<UStepper>` visible, Docker builds, `pnpm typecheck` passes.
 
 ---
 
@@ -73,24 +73,26 @@
 - [X] **6.5** Create `pages/output.vue` — Step 4 placeholder with title and description
 - [X] **6.6** Verify navigation between all 4 pages works; stepper updates accordingly
 
-## 6. WordPress Component Registry
+## 6. WordPress Developer Component Registry
 
 - [X] **7.1** Create `shared/wpComponentRegistry.ts` with TypeScript interfaces:
-  - `RegistryEntry` — `name`, `label`, `category`, `color`, `canHaveChildren`, `innerBlocksRequired`, `saveJsTemplate`, `options[]`
-  - `RegistryOption` — `key`, `label`, `type` (`select`/`boolean`/`text`/`number`/`color`), `choices?`, `default?`
-  - Category type: `'text' | 'media' | 'layout' | 'interactive' | 'embed'`
-- [X] **7.2** Populate minimum 20 registry entries with all required flags:
-  - **Text:** `core/paragraph`, `core/heading`, `core/list`, `core/list-item`, `core/quote`, `core/html`
-  - **Media:** `core/image`, `core/video`, `core/audio`, `core/file`, `core/gallery`
-  - **Layout:** `core/group`, `core/columns`, `core/column`, `core/cover`, `core/media-text`, `core/buttons`, `core/button`, `core/separator`, `core/spacer`
-  - **Interactive:** `core/search`, `core/navigation`
-  - **Embed:** `core/embed`, `core/shortcode`
+  - `RegistryEntry` — `name`, `label`, `category`, `package`, `color`, `context`, `canHaveChildren`, `description`, `options[]`
+  - `RegistryOption` — `key`, `label`, `type` (`select`/`boolean`/`text`/`number`), `choices?`, `default?`, `hint?`
+  - `ComponentCategory` type: `'block-editor' | 'controls' | 'color' | 'layout' | 'feedback'`
+  - `ComponentContext` type: `'editor' | 'inspector' | 'toolbar' | 'save' | 'any'`
+- [X] **7.2** Populate 50+ developer component entries from `@wordpress/block-editor` and `@wordpress/components`:
+  - **Block Editor:** `RichText`, `InnerBlocks`, `InspectorControls`, `BlockControls`, `InspectorAdvancedControls`, `MediaUpload`, `MediaPlaceholder`, `AlignmentToolbar`, `BlockAlignmentToolbar`, `BlockVerticalAlignmentToolbar`, `ColorPaletteControl`, `ColorGradientControl`, `ContrastChecker`, `URLInput`, `PlainText`, `BlockIcon`, `BlockVariationPicker`
+  - **Controls:** `TextControl`, `TextareaControl`, `ToggleControl`, `SelectControl`, `RangeControl`, `CheckboxControl`, `RadioControl`, `ComboboxControl`, `NumberControl`, `AnglePickerControl`, `FontSizePicker`, `UnitControl`, `DateTimePicker`, `TimePicker`, `DatePicker`, `FormTokenField`
+  - **Color:** `ColorPalette`, `ColorPicker`, `ColorIndicator`, `GradientPicker`
+  - **Layout:** `PanelBody`, `PanelRow`, `BaseControl`, `Card`, `CardBody`, `CardHeader`, `Flex`, `FlexItem`, `ToolbarGroup`, `ToolbarButton`, `ButtonGroup`, `Button`, `MenuGroup`, `MenuItem`
+  - **Feedback:** `Notice`, `Spinner`, `Placeholder`, `Tooltip`, `Icon`, `Dashicon`, `Disabled`, `Dropdown`, `DropdownMenu`, `Modal`, `TabPanel`, `Popover`
 - [X] **7.3** For each entry, configure:
-  - `canHaveChildren` — `true` for containers (group, columns, column, cover, media-text, buttons, list, navigation, gallery)
-  - `innerBlocksRequired` — `true` for components that require InnerBlocks in save.js
-  - `saveJsTemplate` — JSX snippet for flat save.js generation
-  - `options[]` — component-specific configuration options with correct types and choices
-- [X] **7.4** Export typed registry array and lookup helper functions
+  - `package` — `@wordpress/block-editor` or `@wordpress/components`
+  - `context` — where the component is typically used (editor, inspector, toolbar, save, any)
+  - `canHaveChildren` — `true` for containers (InspectorControls, BlockControls, PanelBody, Flex, etc.)
+  - `description` — one-line description of the component
+  - `options[]` — configurable props with correct types, choices, defaults, and hints
+- [X] **7.4** Export typed registry array and helper functions (`findRegistryEntry`, `getEntriesByCategory`, `getEntriesByContext`, `getCategories`, `searchRegistry`)
 - [X] **7.5** Verify registry is importable from both `pages/` (client) and `server/` (server) via `shared/` directory
 
 ---

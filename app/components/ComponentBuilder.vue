@@ -16,14 +16,15 @@ function openEditModal(item: ComponentItem) {
   pickerOpen.value = true
 }
 
-function handleSave(data: { registryName: string, options: Record<string, unknown>, notes: string }) {
+function handleSave(data: { registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string }) {
   if (editingItem.value) {
     componentStore.updateComponent(editingItem.value.id, {
       options: data.options,
-      notes: data.notes
+      attributeValue: data.attributeValue,
+      attributeType: data.attributeType
     })
   } else {
-    componentStore.addComponent(data.registryName, data.options, data.notes)
+    componentStore.addComponent(data.registryName, data.options, data.attributeValue, data.attributeType)
   }
   editingItem.value = null
 }
@@ -54,7 +55,7 @@ const maxDepth = computed(() => {
         No components yet
       </h3>
       <p class="text-sm text-gray-400 dark:text-gray-500 mb-6 max-w-md">
-        Start building your block by adding WordPress components. You can arrange them into a tree with nesting support.
+        Add developer components from the @wordpress library to compose your block's editor interface. Arrange them into a tree that mirrors the edit.js JSX structure.
       </p>
       <UButton
         label="Add Component"

@@ -8,7 +8,8 @@ export interface ComponentItem {
   parentId: string | null
   order: number
   options: Record<string, unknown>
-  notes: string
+  attributeValue: string
+  attributeType: string
 }
 
 export interface TreeNode {
@@ -23,7 +24,7 @@ export interface FlatOrderedItem {
 }
 
 export const useComponentStore = defineStore('component', () => {
-  const items = ref<ComponentItem[]>([])
+  const items = ref<ComponentItem[]>([]);
 
   // ── Internal helpers ───────────────────────────────────────
 
@@ -39,7 +40,7 @@ export const useComponentStore = defineStore('component', () => {
       items.value
         .filter(i => i.parentId === pid)
         .sort((a, b) => a.order - b.order)
-        .forEach((item, idx) => { item.order = idx })
+        .forEach((item, index) => { item.order = index })
     }
   }
 
@@ -98,7 +99,7 @@ export const useComponentStore = defineStore('component', () => {
 
   // ── CRUD actions ───────────────────────────────────────────
 
-  function addComponent(registryName: string, options: Record<string, unknown>, notes: string): string | undefined {
+  function addComponent(registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string): string | undefined {
     const entry = findRegistryEntry(registryName)
     if (!entry) return undefined
 
@@ -112,17 +113,19 @@ export const useComponentStore = defineStore('component', () => {
       parentId: null,
       order: rootCount,
       options,
-      notes
+      attributeValue,
+      attributeType
     })
 
     return id
   }
 
-  function updateComponent(id: string, updates: Partial<Pick<ComponentItem, 'options' | 'notes'>>) {
+  function updateComponent(id: string, updates: Partial<Pick<ComponentItem, 'options' | 'attributeValue' | 'attributeType'>>) {
     const item = items.value.find(i => i.id === id)
     if (!item) return
     if (updates.options !== undefined) item.options = updates.options
-    if (updates.notes !== undefined) item.notes = updates.notes
+    if (updates.attributeValue !== undefined) item.attributeValue = updates.attributeValue
+    if (updates.attributeType !== undefined) item.attributeType = updates.attributeType
   }
 
   function removeComponent(id: string) {
@@ -147,7 +150,8 @@ export const useComponentStore = defineStore('component', () => {
       ...item,
       id: newId,
       order: Number.MAX_SAFE_INTEGER,
-      options: { ...item.options }
+      options: { ...item.options },
+      attributeValue: item.attributeValue
     })
 
     // Clone descendants with remapped parentIds
@@ -164,6 +168,7 @@ export const useComponentStore = defineStore('component', () => {
 
     recomputeSiblingOrders()
   }
+
 
   // ── Reorder ────────────────────────────────────────────────
 

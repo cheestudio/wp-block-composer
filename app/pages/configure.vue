@@ -2,36 +2,9 @@
 	setup
 	lang="ts"
 >
+
 definePageMeta({ middleware: ['require-components'] })
 useSeoMeta({ title: 'Configure — WP Block Composer' })
-
-export interface ComponentItem {
-	id: string
-	registryName: string
-	label: string
-	parentId: string | null
-	children: ComponentItem[]
-}
-
-const componentStore = useComponentStore();
-const { items } = storeToRefs(componentStore);
-const itemsObjects = items.value;
-
-const itemIds = Object.fromEntries(itemsObjects.map(item => [item.id, { ...item, children: [] as ComponentItem[] }]));
-
-const tree: ComponentItem[] = [];
-itemsObjects.forEach((item) => {
-	if (item.parentId && itemIds[item.parentId]) {
-		itemIds[item.parentId]?.children.push(itemIds[item.id]!);
-	}
-	else {
-		const entry = itemIds[item.id];
-		if (entry) {
-			tree.push(entry);
-		}
-	}
-});
-
 </script>
 
 
@@ -44,16 +17,23 @@ itemsObjects.forEach((item) => {
 			Set the block type, metadata, attributes, supports, styles, and all block.json options.
 		</p>
 
-		<div class="grid grid-cols-2 gap-10">
-			<div>
-				<h3>Block Options</h3>
+		<div class="grid grid-cols-[2fr_1fr] gap-10">
+			<div class="block-configuration">
+				<div class="block-type">
+					<BlockType />
+				</div>
+				<div class="block-options py-12 min-h-screen">
+					<BlockOptions />
+				</div>
 			</div>
-			<div class="bg-white/5 p-4 rounded-lg">
-				<h2>Selected Components</h2>
-				<USeparator />
-				<UTree :items="tree" />
+			<div class="selected-components">
+				<div class="bg-white/5 p-4 rounded-lg sticky top-10">
+					<SelectedComponents />
+				</div>
 			</div>
 		</div>
+
+
 
 	</div>
 </template>

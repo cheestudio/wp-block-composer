@@ -1,8 +1,8 @@
 # Phase 2 — Component Builder
 
 > **Status:** `in-progress`
-> **Goal:** A fully functional component tree builder on `/build` — users can search the WP registry, add components with configured options, reorder via drag-and-drop, nest via indent/outdent, and edit/duplicate/delete any component.
-> **Acceptance:** Can add/nest/reorder 5+ components, `asTree()` mirrors visual nesting, edit/duplicate/delete work, route guard blocks `/configure` when store is empty, `pnpm typecheck` passes.
+> **Goal:** A fully functional developer component tree builder on `/build` — users can search the `@wordpress/*` component registry, add developer components (RichText, InspectorControls, TextControl, etc.) with configured props, reorder via drag-and-drop, nest via indent/outdent to compose the edit.js JSX structure, and edit/duplicate/delete any component.
+> **Acceptance:** Can add/nest/reorder 5+ developer components, `asTree()` mirrors visual nesting (edit.js JSX hierarchy), edit/duplicate/delete work, route guard blocks `/configure` when store is empty, `pnpm typecheck` passes.
 
 ---
 
@@ -10,7 +10,7 @@
 
 - [X] **1.1** Create `app/stores/componentStore.ts` — Pinia store with Composition API (`defineStore` + `setup` function):
   - State: `items: ComponentItem[]` (flat list with `parentId` + `order` for nesting)
-  - `ComponentItem` interface: `id`, `registryName`, `label`, `parentId` (string | null), `order`, `options` (record of configured option values), `notes` (string)
+  - `ComponentItem` interface: `id`, `registryName` (developer component name, e.g. 'RichText'), `label`, `parentId` (string | null), `order`, `options` (record of configured prop values), `notes` (string)
 - [X] **1.2** Add CRUD actions:
   - `addComponent(registryName, options, notes)` — appends with unique `id` (uuid), `parentId: null`, next `order`
   - `updateComponent(id, updates)` — partial update of options/notes
@@ -18,14 +18,14 @@
   - `duplicateComponent(id)` — deep-clones component (and descendants) with new IDs, remapped parentIds
 - [X] **1.3** Add reorder actions:
   - `reorder(newFlatOrderedIds)` — groups by parentId, sorts each group by new visual position, renumbers
-  - `indent(id)` — set `parentId` to previous sibling (only if that sibling `canHaveChildren`)
+  - `indent(id)` — set `parentId` to previous sibling (only if that sibling `canHaveChildren`, e.g. InspectorControls, PanelBody)
   - `outdent(id)` — move component to parent's parent (placed right after parent in sibling order)
   - `canIndent(id)` / `canOutdent(id)` — boolean checks for UI disable state
 - [X] **1.4** Add computed getters:
-  - `asTree()` — returns nested `TreeNode[]` structure from flat list (recursive grouping by `parentId`)
+  - `asTree()` — returns nested `TreeNode[]` representing the edit.js JSX hierarchy
   - `flatOrdered()` — returns `FlatOrderedItem[]` in visual order (depth-first traversal of tree)
   - `isFlat()` — `true` when all components have `parentId === null`
-  - `hasContainerWithoutChildren()` — `true` when any `canHaveChildren` component has zero children
+  - `hasContainerWithoutChildren()` — `true` when any container component (e.g. InspectorControls, PanelBody) has zero children
   - `isEmpty()` — `true` when `items.length === 0`
 - [X] **1.5** Exported interfaces: `ComponentItem`, `TreeNode`, `FlatOrderedItem`
 
@@ -34,7 +34,7 @@
 - [X] **2.1** Create `app/composables/useComponentRegistry.ts`:
   - Wraps `searchRegistry()` and `findRegistryEntry()` from `shared/wpComponentRegistry.ts`
   - Provides reactive `searchQuery` ref and `filteredEntries` computed
-  - Provides `search(query)`, `getByCategory(category)`, `lookup(name)`, `categories`
+  - Provides `search(query)`, `getByCategory(category)`, `getByContext(context)`, `lookup(name)`, `categories`
 - [X] **2.2** Auto-imported via Nuxt `composables/` convention
 
 ## 3. Component Picker Modal
@@ -44,9 +44,9 @@
   - Props: `open` (boolean), `editItem` (optional `ComponentItem` for edit mode)
   - Emits: `update:open`, `save`
 - [X] **3.2** Implement search/browse interface:
-  - `<UInput>` search field with live filtering against registry
-  - Category filter buttons (icon + label, toggle active state)
-  - Result list showing component name, registry name, category color dot, container/leaf badge
+  - `<UInput>` search field with live filtering against registry (searches name, label, and description)
+  - Category filter buttons (`block-editor`, `controls`, `color`, `layout`, `feedback`) with icons
+  - Result list showing component label, description, `@wordpress/*` package source, context badge, category color dot
   - Click to select → advances to configure step
 - [X] **3.3** Implement dynamic options form:
   - When a registry entry is selected, render its `options[]` as form fields:
@@ -54,14 +54,14 @@
     - `boolean` → `<USwitch>` with label
     - `text` → `<UInput>`
     - `number` → `<UInput type="number">`
-    - `color` → `<UInput>` with placeholder
+  - Show option `hint` text on form fields
   - Pre-fill with `default` values from registry
   - In edit mode: pre-fill with existing `ComponentItem` option values
 - [X] **3.4** Add notes field:
-  - `<UTextarea>` with autoresize for free-form notes
+  - `<UTextarea>` with autoresize for developer intent notes
   - In edit mode: pre-fill with existing notes
 - [X] **3.5** Add save/cancel actions:
-  - "Add Component" / "Save Changes" button (label changes based on add vs edit mode)
+  - "Add to Block" / "Save Changes" button (label changes based on add vs edit mode)
   - "Cancel" button to close, "Back" button to return to search step
   - On save: emit `save` event with `{ registryName, options, notes }`
 
@@ -75,7 +75,8 @@
     - Drag handle icon (`i-lucide-grip-vertical`, `.drag-handle` class)
     - Visual indentation (`paddingLeft` based on `depth * 1.5rem`)
     - Category color indicator (colored dot from registry `color`)
-    - Component label and registry name
+    - Component label and `@wordpress/*` package source
+    - Context badge (Editor/Sidebar/Toolbar)
     - Container badge for `canHaveChildren` components
     - Configured options summary (condensed, non-default values)
     - Notes preview (truncated, italic)
@@ -100,7 +101,7 @@
 - [X] **5.1** Create `app/components/ComponentBuilder.vue`:
   - Assembles `ComponentPickerModal` + `ComponentOrderList`
   - "Add Component" CTA button (opens picker modal in add mode)
-  - Empty state: centered icon, heading, description, and CTA when store is empty
+  - Empty state: centered icon, heading, description ("Add developer components from the @wordpress library..."), and CTA when store is empty
 - [X] **5.2** Wire up modal interactions:
   - Add mode: modal save → `componentStore.addComponent()`
   - Edit mode: modal save → `componentStore.updateComponent()`
@@ -113,7 +114,7 @@
 
 - [X] **6.1** Update `app/pages/build.vue`:
   - Replaced placeholder content with `<ComponentBuilder />`
-  - Page header with title "Build Component Tree" and brief instructions
+  - Page header with title "Build Component Tree" and instructions about selecting @wordpress components
   - "Next: Configure →" navigation button (disabled when store is empty, links to `/configure`)
 
 ## 7. Route Guard
@@ -128,16 +129,16 @@
 
 - [ ] **8.1** Run `pnpm typecheck` — fix any type errors
 - [ ] **8.2** Verify all new interfaces are properly exported and reusable
-- [ ] **8.3** Test full flow: add 5+ components including nested containers, reorder, edit, duplicate, delete
+- [ ] **8.3** Test full flow: add 5+ developer components including nested containers (e.g. InspectorControls → PanelBody → TextControl), reorder, edit, duplicate, delete
 
 ---
 
 ## Acceptance Criteria Checklist
 
-- [ ] Can add 5+ components including nested containers
+- [ ] Can add 5+ developer components including nested containers (e.g., InspectorControls → PanelBody → TextControl)
 - [ ] Drag-to-reorder correctly updates component order
-- [ ] Indent/outdent correctly sets/clears `parentId`; indent disabled when row above is a leaf
-- [ ] `asTree()` output correctly mirrors visual nesting
+- [ ] Indent/outdent correctly sets/clears `parentId`; indent disabled when row above is a leaf component
+- [ ] `asTree()` output correctly mirrors visual nesting (represents the edit.js JSX hierarchy)
 - [ ] Empty-container `<UAlert>` appears/disappears correctly
 - [ ] Edit re-opens modal pre-populated with current values
 - [ ] Duplicate creates an independent copy

@@ -1,5 +1,5 @@
-import type { ComponentCategory, RegistryEntry } from '~~/shared/wpComponentRegistry'
-import { wpComponentRegistry, findRegistryEntry, getEntriesByCategory, getCategories, searchRegistry } from '~~/shared/wpComponentRegistry'
+import type { ComponentCategory, ComponentContext, RegistryEntry } from '~~/shared/wpComponentRegistry'
+import { wpComponentRegistry, findRegistryEntry, getEntriesByCategory, getEntriesByContext, getCategories, searchRegistry } from '~~/shared/wpComponentRegistry'
 
 export function useComponentRegistry() {
   const searchQuery = ref('')
@@ -17,6 +17,10 @@ export function useComponentRegistry() {
     return getEntriesByCategory(category)
   }
 
+  function getByContext(context: ComponentContext): RegistryEntry[] {
+    return getEntriesByContext(context)
+  }
+
   function lookup(name: string): RegistryEntry | undefined {
     return findRegistryEntry(name)
   }
@@ -28,6 +32,7 @@ export function useComponentRegistry() {
     filteredEntries,
     search,
     getByCategory,
+    getByContext,
     lookup,
     categories
   }

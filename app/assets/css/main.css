@@ -2,17 +2,72 @@
 @import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+	--font-serif: 'Ledger', sans-serif;
+	/* --font-sans: 'Exo 2', sans-serif; */
+	--font-sans: 'Ubuntu Sans', sans-serif;
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+	--color-monokai-bg: #0e121a;
+	--color-monokai-fg: #f8f8f2;
+	--color-monokai-red: #f92672;
+	--color-monokai-orange: #fd971f;
+	--color-monokai-yellow: #e6db74;
+	--color-monokai-green: #a6e22e;
+	--color-monokai-blue: #66d9ef;
+	--color-monokai-purple: #ae81ff;
+	--color-monokai-comment: #75715e;
+	--color-monokai-selection: #49483e;
+	--color-monokai-line: #3e3d32;
+	--color-monokai-gutter: #90908a;
+}
+
+:root {
+	--ui-bg: var(--color-monokai-bg);
+	--ui-primary: var(--color-monokai-blue);
+	--ui-secondary: var(--color-monokai-yellow);
+	--ui-success: var(--color-monokai-green);
+	--ui-info: var(--color-monokai-fg);
+	--ui-warning: var(--color-monokai-yellow);
+	--ui-error: var(--color-monokai-red);
+	--ui-neutral: var(--color-monokai-gutter);
+	--ui-text-highlighted: var(--color-monokai-fg);
+	--ui-bg-inverted: var(--color-gray);
+	--default-font-family: var(--font-sans);
+	--default-heading-font-family: var(--font-serif);
+}
+
+body {
+	@apply text-highlighted max-[1470px]:overflow-x-clip;
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+	@apply font-serif font-normal;
+}
+
+@layer components {
+	
+h1 {
+	@apply text-4xl font-normal mb-10;
+}
+h2 {
+	@apply text-3xl font-normal mb-8;
+}
+h3 {
+	@apply text-2xl font-normal mb-6;
+}
+h4 {
+	@apply text-xl font-normal mb-5;
+}
+h5 {
+	@apply text-xl font-normal mb-4;
+}
+h6 {
+	@apply text-lg font-normal mb-3;
+}
+
+p {
+	@apply mb-5 leading-relaxed;
+}
+p a {
+	@apply underline decoration-1 decoration-monokai-yellow underline-offset-5 decoration-dashed hover:decoration-solid hover:decoration-monokai-red hover:underline-offset-2 hover:decoration-2 transition-all
+}
 }

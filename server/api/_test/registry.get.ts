@@ -5,6 +5,6 @@ export default defineEventHandler(() => {
     ok: true,
     totalEntries: wpComponentRegistry.length,
     categories: getCategories(),
-    sampleEntry: findRegistryEntry('core/paragraph')?.label
+    sampleEntry: findRegistryEntry('RichText')?.label
   }
 })

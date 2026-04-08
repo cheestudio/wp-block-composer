@@ -12,7 +12,7 @@ const componentStore = useComponentStore()
           Build Component Tree
         </h2>
         <p class="text-gray-500 dark:text-gray-400">
-          Search the WordPress component registry, add components to your block, and arrange them with drag-and-drop nesting.
+          Select developer components from the @wordpress library and arrange them into the edit.js structure for your block.
         </p>
       </div>
     </div>

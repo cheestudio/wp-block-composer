@@ -1,362 +1,878 @@
-// WordPress Component Registry
+// WordPress Developer Component Registry
 // Shared between client (pages/) and server (server/) via Nuxt shared/ directory
+//
+// Contains developer-facing editor components from @wordpress/block-editor and
+// @wordpress/components — the React components WordPress provides for building
+// custom block editor interfaces. Reference: https://wp-gb.com/
+//
+// These are NOT end-user content blocks (core/paragraph, core/image, etc.).
 
-export type ComponentCategory = 'text' | 'media' | 'layout' | 'interactive' | 'embed'
+export type ComponentCategory = 'interface' | 'input' | 'color' | 'ui'
+
+export type ComponentContext =
+  | 'editor'     // Used in the block's main edit area
+  | 'inspector'  // Used inside InspectorControls (sidebar)
+  | 'toolbar'    // Used inside BlockControls (toolbar)
+  | 'save'       // Used in save.js output
+  | 'any'        // Can be used in any context
 
 export interface RegistryOption {
   key: string
   label: string
-  type: 'select' | 'boolean' | 'text' | 'number' | 'color'
+  type: 'select' | 'boolean' | 'text' | 'number'
   choices?: string[]
   default?: unknown
+  hint?: string
 }
 
 export interface RegistryEntry {
   name: string
   label: string
   category: ComponentCategory
+  package: string
   color: string
+  context: ComponentContext
   canHaveChildren: boolean
-  innerBlocksRequired: boolean
-  saveJsTemplate: string
+  description: string
   options: RegistryOption[]
 }
 
 const categoryColors: Record<ComponentCategory, string> = {
-  text: '#3b82f6',
-  media: '#8b5cf6',
-  layout: '#f59e0b',
-  interactive: '#10b981',
-  embed: '#ef4444'
+  'interface': '#3b82f6',
+  'input': '#10b981',
+  'color': '#8b5cf6',
+  'ui': '#ef4444'
 }
 
 export const wpComponentRegistry: RegistryEntry[] = [
-  // ── Text ──────────────────────────────────────────────────
+  // ── Interface (@wordpress/block-editor + @wordpress/components) ──
+
   {
-    name: 'core/paragraph',
-    label: 'Paragraph',
-    category: 'text',
-    color: categoryColors.text,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<RichText.Content tagName="p" value={ attributes.content } />',
-    options: [
-      { key: 'placeholder', label: 'Placeholder text', type: 'text', default: '' },
-      { key: 'dropCap', label: 'Drop cap', type: 'boolean', default: false }
-    ]
-  },
-  {
-    name: 'core/heading',
-    label: 'Heading',
-    category: 'text',
-    color: categoryColors.text,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<RichText.Content tagName={ `h${ attributes.level }` } value={ attributes.content } />',
-    options: [
-      { key: 'level', label: 'Heading level', type: 'select', choices: ['1', '2', '3', '4', '5', '6'], default: '2' },
-      { key: 'placeholder', label: 'Placeholder text', type: 'text', default: '' }
-    ]
-  },
-  {
-    name: 'core/list',
-    label: 'List',
-    category: 'text',
-    color: categoryColors.text,
+    name: 'InspectorControls',
+    label: 'Inspector Controls',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'inspector',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
-    options: [
-      { key: 'ordered', label: 'Ordered list', type: 'boolean', default: false },
-      { key: 'reversed', label: 'Reversed', type: 'boolean', default: false },
-      { key: 'start', label: 'Start value', type: 'number', default: 1 }
-    ]
-  },
-  {
-    name: 'core/list-item',
-    label: 'List Item',
-    category: 'text',
-    color: categoryColors.text,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<li><RichText.Content value={ attributes.content } /></li>',
-    options: [
-      { key: 'placeholder', label: 'Placeholder text', type: 'text', default: '' }
-    ]
-  },
-  {
-    name: 'core/quote',
-    label: 'Quote',
-    category: 'text',
-    color: categoryColors.text,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<blockquote><RichText.Content tagName="p" value={ attributes.value } /><RichText.Content tagName="cite" value={ attributes.citation } /></blockquote>',
-    options: [
-      { key: 'citation', label: 'Show citation', type: 'boolean', default: true }
-    ]
-  },
-  {
-    name: 'core/html',
-    label: 'Custom HTML',
-    category: 'text',
-    color: categoryColors.text,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<RawHTML>{ attributes.content }</RawHTML>',
+    description: 'Sidebar panel container for block settings',
     options: []
   },
-
-  // ── Media ─────────────────────────────────────────────────
   {
-    name: 'core/image',
-    label: 'Image',
-    category: 'media',
-    color: categoryColors.media,
+    name: 'InspectorAdvancedControls',
+    label: 'Inspector Advanced Controls',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'inspector',
+    canHaveChildren: true,
+    description: 'Advanced section in sidebar (collapsed by default)',
+    options: []
+  },
+  {
+    name: 'BlockControls',
+    label: 'Block Controls',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    canHaveChildren: true,
+    description: 'Block toolbar container shown above selected block',
+    options: [
+      { key: 'group', label: 'Toolbar group', type: 'select', choices: ['default', 'block', 'inline', 'other', 'parent'], default: 'default', hint: 'Which toolbar section to place controls in' }
+    ]
+  },
+  {
+    name: 'AlignmentToolbar',
+    label: 'Alignment Toolbar',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<figure><img src={ attributes.url } alt={ attributes.alt } className={ `wp-image-${ attributes.id }` } /></figure>',
-    options: [
-      { key: 'linkTo', label: 'Link to', type: 'select', choices: ['none', 'media', 'attachment', 'custom'], default: 'none' },
-      { key: 'sizeSlug', label: 'Image size', type: 'select', choices: ['thumbnail', 'medium', 'large', 'full'], default: 'large' }
-    ]
+    description: 'Text alignment control (left, center, right)',
+    options: []
   },
   {
-    name: 'core/video',
-    label: 'Video',
-    category: 'media',
-    color: categoryColors.media,
+    name: 'BlockAlignmentToolbar',
+    label: 'Block Alignment Toolbar',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<figure><video controls src={ attributes.src } /></figure>',
+    description: 'Block-level alignment control (center, wide, full width)',
     options: [
-      { key: 'autoplay', label: 'Autoplay', type: 'boolean', default: false },
-      { key: 'loop', label: 'Loop', type: 'boolean', default: false },
-      { key: 'muted', label: 'Muted', type: 'boolean', default: false },
-      { key: 'controls', label: 'Show controls', type: 'boolean', default: true }
+      { key: 'controls', label: 'Alignment options', type: 'text', default: 'center,wide,full', hint: 'Comma-separated alignment values' }
     ]
   },
   {
-    name: 'core/audio',
-    label: 'Audio',
-    category: 'media',
-    color: categoryColors.media,
+    name: 'BlockVerticalAlignmentToolbar',
+    label: 'Block Vertical Alignment',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<figure><audio controls src={ attributes.src } /></figure>',
-    options: [
-      { key: 'autoplay', label: 'Autoplay', type: 'boolean', default: false },
-      { key: 'loop', label: 'Loop', type: 'boolean', default: false }
-    ]
+    description: 'Vertical alignment control (top, center, bottom)',
+    options: []
   },
   {
-    name: 'core/file',
-    label: 'File',
-    category: 'media',
-    color: categoryColors.media,
+    name: 'BlockIcon',
+    label: 'Block Icon',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'any',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<div><a href={ attributes.href }>{ attributes.fileName }</a><a href={ attributes.href } className="wp-block-file__button" download>Download</a></div>',
+    description: 'Renders a block type icon (Dashicon or SVG)',
     options: [
-      { key: 'showDownloadButton', label: 'Show download button', type: 'boolean', default: true },
-      { key: 'displayPreview', label: 'Display inline preview', type: 'boolean', default: true }
+      { key: 'icon', label: 'Icon name', type: 'text', default: 'block-default', hint: 'Dashicon name or SVG component' }
     ]
   },
   {
-    name: 'core/gallery',
-    label: 'Gallery',
-    category: 'media',
-    color: categoryColors.media,
+    name: 'BlockVariationPicker',
+    label: 'Block Variation Picker',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'editor',
+    canHaveChildren: false,
+    description: 'UI for selecting between block variations on initial placement',
+    options: []
+  },
+  {
+    name: 'MediaPlaceholder',
+    label: 'Media Placeholder',
+    category: 'interface',
+    package: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'editor',
+    canHaveChildren: false,
+    description: 'Placeholder UI for media selection with upload and URL options',
+    options: [
+      { key: 'allowedTypes', label: 'Allowed types', type: 'text', default: 'image', hint: 'Comma-separated: image, video, audio' },
+      { key: 'multiple', label: 'Allow multiple', type: 'boolean', default: false },
+      { key: 'labels', label: 'Label text', type: 'text', default: '', hint: 'Label shown on the placeholder' }
+    ]
+  },
+  {
+    name: 'PanelBody',
+    label: 'Panel Body',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'inspector',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
+    description: 'Collapsible panel section for grouping sidebar controls',
     options: [
-      { key: 'columns', label: 'Columns', type: 'number', default: 3 },
-      { key: 'imageCrop', label: 'Crop images', type: 'boolean', default: true },
-      { key: 'linkTo', label: 'Link to', type: 'select', choices: ['none', 'media', 'attachment'], default: 'none' }
+      { key: 'title', label: 'Panel title', type: 'text', default: '', hint: 'Heading text for the collapsible section' },
+      { key: 'initialOpen', label: 'Initially open', type: 'boolean', default: true }
     ]
   },
-
-  // ── Layout ────────────────────────────────────────────────
   {
-    name: 'core/group',
-    label: 'Group',
-    category: 'layout',
-    color: categoryColors.layout,
+    name: 'PanelRow',
+    label: 'Panel Row',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'inspector',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
-    options: [
-      { key: 'tagName', label: 'HTML element', type: 'select', choices: ['div', 'header', 'main', 'section', 'article', 'aside', 'footer'], default: 'div' },
-      { key: 'layout', label: 'Layout', type: 'select', choices: ['default', 'constrained', 'flex', 'grid'], default: 'default' }
-    ]
+    description: 'Horizontal row layout within a panel section',
+    options: []
   },
   {
-    name: 'core/columns',
-    label: 'Columns',
-    category: 'layout',
-    color: categoryColors.layout,
+    name: 'BaseControl',
+    label: 'Base Control',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'inspector',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
+    description: 'Label and help text wrapper for custom form inputs',
     options: [
-      { key: 'isStackedOnMobile', label: 'Stack on mobile', type: 'boolean', default: true },
-      { key: 'verticalAlignment', label: 'Vertical alignment', type: 'select', choices: ['top', 'center', 'bottom', 'stretch'], default: 'top' }
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' }
     ]
   },
   {
-    name: 'core/column',
-    label: 'Column',
-    category: 'layout',
-    color: categoryColors.layout,
+    name: 'Card',
+    label: 'Card',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
+    description: 'Card container with optional header, body, footer sections',
     options: [
-      { key: 'width', label: 'Width (%)', type: 'text', default: '' },
-      { key: 'verticalAlignment', label: 'Vertical alignment', type: 'select', choices: ['top', 'center', 'bottom', 'stretch'], default: 'top' }
+      { key: 'size', label: 'Size', type: 'select', choices: ['small', 'medium', 'large'], default: 'medium' },
+      { key: 'isBorderless', label: 'Borderless', type: 'boolean', default: false }
     ]
   },
   {
-    name: 'core/cover',
-    label: 'Cover',
-    category: 'layout',
-    color: categoryColors.layout,
+    name: 'CardBody',
+    label: 'Card Body',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
-    options: [
-      { key: 'dimRatio', label: 'Overlay opacity', type: 'number', default: 50 },
-      { key: 'overlayColor', label: 'Overlay color', type: 'color', default: '#000000' },
-      { key: 'minHeight', label: 'Minimum height (px)', type: 'number', default: 430 },
-      { key: 'hasParallax', label: 'Fixed background', type: 'boolean', default: false }
-    ]
+    description: 'Main content area within a Card',
+    options: []
   },
   {
-    name: 'core/media-text',
-    label: 'Media & Text',
-    category: 'layout',
-    color: categoryColors.layout,
+    name: 'CardHeader',
+    label: 'Card Header',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
-    options: [
-      { key: 'mediaPosition', label: 'Media position', type: 'select', choices: ['left', 'right'], default: 'left' },
-      { key: 'mediaWidth', label: 'Media width (%)', type: 'number', default: 50 },
-      { key: 'isStackedOnMobile', label: 'Stack on mobile', type: 'boolean', default: true },
-      { key: 'imageFill', label: 'Crop image to fill', type: 'boolean', default: false }
-    ]
+    description: 'Header section within a Card',
+    options: []
   },
   {
-    name: 'core/buttons',
-    label: 'Buttons',
-    category: 'layout',
-    color: categoryColors.layout,
+    name: 'Flex',
+    label: 'Flex',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
     canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
+    description: 'Flexbox container for arranging child components',
     options: [
-      { key: 'layout', label: 'Layout', type: 'select', choices: ['horizontal', 'vertical'], default: 'horizontal' }
+      { key: 'direction', label: 'Direction', type: 'select', choices: ['row', 'column'], default: 'row' },
+      { key: 'gap', label: 'Gap (px)', type: 'number', default: 8 },
+      { key: 'wrap', label: 'Wrap', type: 'boolean', default: false },
+      { key: 'justify', label: 'Justify', type: 'select', choices: ['flex-start', 'center', 'flex-end', 'space-between', 'space-around'], default: 'flex-start' },
+      { key: 'align', label: 'Align', type: 'select', choices: ['flex-start', 'center', 'flex-end', 'stretch'], default: 'center' }
     ]
   },
   {
-    name: 'core/button',
+    name: 'FlexItem',
+    label: 'Flex Item',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Child element within a Flex container',
+    options: []
+  },
+  {
+    name: 'ToolbarGroup',
+    label: 'Toolbar Group',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    canHaveChildren: true,
+    description: 'Groups toolbar buttons with visual separator',
+    options: []
+  },
+  {
+    name: 'ToolbarButton',
+    label: 'Toolbar Button',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    canHaveChildren: false,
+    description: 'Individual button in the block toolbar',
+    options: [
+      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG' },
+      { key: 'title', label: 'Tooltip title', type: 'text', default: '' },
+      { key: 'isActive', label: 'Active state', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'ButtonGroup',
+    label: 'Button Group',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Grouped button container without spacing',
+    options: []
+  },
+  {
+    name: 'MenuGroup',
+    label: 'Menu Group',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Groups menu items with optional label',
+    options: [
+      { key: 'label', label: 'Group label', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'MenuItem',
+    label: 'Menu Item',
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'Individual item within a menu group',
+    options: [
+      { key: 'icon', label: 'Icon', type: 'text', default: '' },
+      { key: 'isDestructive', label: 'Destructive', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'Button',
     label: 'Button',
-    category: 'layout',
-    color: categoryColors.layout,
+    category: 'interface',
+    package: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<div className="wp-block-button"><RichText.Content tagName="a" className="wp-block-button__link" href={ attributes.url } value={ attributes.text } rel={ attributes.rel } /></div>',
+    description: 'Clickable button with icon and variant support',
     options: [
-      { key: 'style', label: 'Style', type: 'select', choices: ['fill', 'outline'], default: 'fill' },
-      { key: 'width', label: 'Width', type: 'select', choices: ['auto', '25', '50', '75', '100'], default: 'auto' },
-      { key: 'placeholder', label: 'Placeholder text', type: 'text', default: '' }
-    ]
-  },
-  {
-    name: 'core/separator',
-    label: 'Separator',
-    category: 'layout',
-    color: categoryColors.layout,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<hr className="wp-block-separator" />',
-    options: [
-      { key: 'style', label: 'Style', type: 'select', choices: ['default', 'wide', 'dots'], default: 'default' }
-    ]
-  },
-  {
-    name: 'core/spacer',
-    label: 'Spacer',
-    category: 'layout',
-    color: categoryColors.layout,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<div style={ { height: attributes.height } } aria-hidden="true" className="wp-block-spacer" />',
-    options: [
-      { key: 'height', label: 'Height (px)', type: 'number', default: 100 }
+      { key: 'variant', label: 'Variant', type: 'select', choices: ['primary', 'secondary', 'tertiary', 'link'], default: 'secondary' },
+      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG' },
+      { key: 'isDestructive', label: 'Destructive', type: 'boolean', default: false },
+      { key: 'isSmall', label: 'Small size', type: 'boolean', default: false }
     ]
   },
 
-  // ── Interactive ───────────────────────────────────────────
-  {
-    name: 'core/search',
-    label: 'Search',
-    category: 'interactive',
-    color: categoryColors.interactive,
-    canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '',
-    options: [
-      { key: 'label', label: 'Label text', type: 'text', default: 'Search' },
-      { key: 'showLabel', label: 'Show label', type: 'boolean', default: true },
-      { key: 'placeholder', label: 'Placeholder', type: 'text', default: '' },
-      { key: 'buttonText', label: 'Button text', type: 'text', default: 'Search' },
-      { key: 'buttonPosition', label: 'Button position', type: 'select', choices: ['button-outside', 'button-inside', 'no-button'], default: 'button-outside' }
-    ]
-  },
-  {
-    name: 'core/navigation',
-    label: 'Navigation',
-    category: 'interactive',
-    color: categoryColors.interactive,
-    canHaveChildren: true,
-    innerBlocksRequired: true,
-    saveJsTemplate: '',
-    options: [
-      { key: 'overlayMenu', label: 'Overlay menu', type: 'select', choices: ['never', 'mobile', 'always'], default: 'mobile' },
-      { key: 'hasIcon', label: 'Show icon', type: 'boolean', default: true }
-    ]
-  },
+  // ── Input (@wordpress/block-editor + @wordpress/components) ─────
 
-  // ── Embed ─────────────────────────────────────────────────
   {
-    name: 'core/embed',
-    label: 'Embed',
-    category: 'embed',
-    color: categoryColors.embed,
+    name: 'RichText',
+    label: 'Rich Text',
+    category: 'input',
+    package: '@wordpress/block-editor',
+    color: categoryColors['input'],
+    context: 'editor',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<figure><div className="wp-block-embed__wrapper">{ attributes.url }</div></figure>',
+    description: 'Editable rich text field with formatting toolbar',
     options: [
-      { key: 'providerNameSlug', label: 'Provider', type: 'select', choices: ['youtube', 'vimeo', 'twitter', 'spotify', 'soundcloud', 'wordpress', 'other'], default: 'other' },
-      { key: 'responsive', label: 'Responsive', type: 'boolean', default: true }
+      { key: 'tagName', label: 'HTML tag', type: 'select', choices: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div', 'blockquote', 'li'], default: 'p', hint: 'Wrapper element for the editable text' },
+      { key: 'placeholder', label: 'Placeholder', type: 'text', default: '', hint: 'Text shown when field is empty' },
+      { key: 'multiline', label: 'Multiline', type: 'boolean', default: false, hint: 'Allow multiple paragraphs via Enter key' },
+      { key: 'keepPlaceholderOnFocus', label: 'Keep placeholder on focus', type: 'boolean', default: false }
     ]
   },
   {
-    name: 'core/shortcode',
-    label: 'Shortcode',
-    category: 'embed',
-    color: categoryColors.embed,
+    name: 'InnerBlocks',
+    label: 'Inner Blocks',
+    category: 'input',
+    package: '@wordpress/block-editor',
+    color: categoryColors['input'],
+    context: 'editor',
     canHaveChildren: false,
-    innerBlocksRequired: false,
-    saveJsTemplate: '<RawHTML>{ attributes.text }</RawHTML>',
+    description: 'Nested block container allowing child blocks inside this block',
+    options: [
+      { key: 'orientation', label: 'Orientation', type: 'select', choices: ['vertical', 'horizontal'], default: 'vertical', hint: 'Layout direction for child blocks' },
+      { key: 'templateLock', label: 'Template lock', type: 'select', choices: ['false', 'all', 'insert', 'contentOnly'], default: 'false', hint: 'Restrict how users can modify inner blocks' },
+      { key: 'renderAppender', label: 'Show block appender', type: 'boolean', default: true, hint: 'Show the "+" button to add blocks' }
+    ]
+  },
+  {
+    name: 'MediaUpload',
+    label: 'Media Upload',
+    category: 'input',
+    package: '@wordpress/block-editor',
+    color: categoryColors['input'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'Media library upload trigger for images, videos, and files',
+    options: [
+      { key: 'allowedTypes', label: 'Allowed types', type: 'text', default: 'image', hint: 'Comma-separated: image, video, audio' },
+      { key: 'multiple', label: 'Allow multiple', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'TextControl',
+    label: 'Text Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Single-line text input for block settings',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '', hint: 'Description shown below the input' },
+      { key: 'type', label: 'Input type', type: 'select', choices: ['text', 'email', 'url', 'tel', 'password', 'number'], default: 'text' }
+    ]
+  },
+  {
+    name: 'TextareaControl',
+    label: 'Textarea Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Multi-line text input for longer content',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' },
+      { key: 'rows', label: 'Rows', type: 'number', default: 4 }
+    ]
+  },
+  {
+    name: 'ToggleControl',
+    label: 'Toggle Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'On/off switch for boolean settings',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'SelectControl',
+    label: 'Select Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Dropdown select for choosing from predefined options',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' },
+      { key: 'multiple', label: 'Multiple select', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'RangeControl',
+    label: 'Range Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Numeric slider for range values (e.g., opacity, columns)',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' },
+      { key: 'min', label: 'Minimum', type: 'number', default: 0 },
+      { key: 'max', label: 'Maximum', type: 'number', default: 100 },
+      { key: 'step', label: 'Step', type: 'number', default: 1 },
+      { key: 'withInputField', label: 'Show number input', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'CheckboxControl',
+    label: 'Checkbox Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Single checkbox for boolean options',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'RadioControl',
+    label: 'Radio Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Radio button group for mutually exclusive choices',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'ComboboxControl',
+    label: 'Combobox Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Searchable dropdown for large option sets',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'NumberControl',
+    label: 'Number Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Numeric input with optional stepper buttons',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'min', label: 'Minimum', type: 'number', default: 0 },
+      { key: 'max', label: 'Maximum', type: 'number', default: 100 },
+      { key: 'step', label: 'Step', type: 'number', default: 1 }
+    ]
+  },
+  {
+    name: 'AnglePickerControl',
+    label: 'Angle Picker',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Angle/rotation input with visual dial',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: 'Angle' }
+    ]
+  },
+  {
+    name: 'FontSizePicker',
+    label: 'Font Size Picker',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Theme-aware font size selector with presets',
+    options: [
+      { key: 'withSlider', label: 'Show slider', type: 'boolean', default: false },
+      { key: 'withReset', label: 'Show reset button', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'UnitControl',
+    label: 'Unit Control',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Number input with CSS unit selector (px, em, rem, %)',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'units', label: 'Available units', type: 'text', default: 'px,em,rem,%', hint: 'Comma-separated CSS units' }
+    ]
+  },
+  {
+    name: 'DateTimePicker',
+    label: 'Date Time Picker',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Combined date and time picker',
+    options: [
+      { key: 'is12Hour', label: '12-hour format', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'TimePicker',
+    label: 'Time Picker',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Time-only selection control',
+    options: [
+      { key: 'is12Hour', label: '12-hour format', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'DatePicker',
+    label: 'Date Picker',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Date-only selection calendar',
     options: []
+  },
+  {
+    name: 'FormTokenField',
+    label: 'Form Token Field',
+    category: 'input',
+    package: '@wordpress/components',
+    color: categoryColors['input'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Tag/token input for multiple values (like keywords)',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'maxLength', label: 'Max tokens', type: 'number', default: 0, hint: '0 = unlimited' }
+    ]
+  },
+
+  // ── Color (@wordpress/block-editor + @wordpress/components) ─────
+
+  {
+    name: 'ColorPaletteControl',
+    label: 'Color Palette Control',
+    category: 'color',
+    package: '@wordpress/block-editor',
+    color: categoryColors['color'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Theme-aware color palette selector (uses editor color settings)',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: 'Color', hint: 'Label shown above the palette' }
+    ]
+  },
+  {
+    name: 'ContrastChecker',
+    label: 'Contrast Checker',
+    category: 'color',
+    package: '@wordpress/block-editor',
+    color: categoryColors['color'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'WCAG 2.0 AA contrast validation between text and background colors',
+    options: [
+      { key: 'fontSize', label: 'Font size (px)', type: 'number', default: 14, hint: 'Text size for contrast calculation' }
+    ]
+  },
+  {
+    name: 'ColorGradientControl',
+    label: 'Color Gradient Control',
+    category: 'color',
+    package: '@wordpress/block-editor',
+    color: categoryColors['color'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Combined color and gradient picker using theme settings',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: 'Color', hint: 'Label shown above the control' },
+      { key: 'enableAlpha', label: 'Enable alpha', type: 'boolean', default: false, hint: 'Allow transparent colors' }
+    ]
+  },
+  {
+    name: 'ColorPalette',
+    label: 'Color Palette',
+    category: 'color',
+    package: '@wordpress/components',
+    color: categoryColors['color'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Preset color selection from a defined palette',
+    options: [
+      { key: 'clearable', label: 'Allow clear', type: 'boolean', default: true, hint: 'Show a clear/reset button' },
+      { key: 'enableAlpha', label: 'Enable alpha', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'ColorPicker',
+    label: 'Color Picker',
+    category: 'color',
+    package: '@wordpress/components',
+    color: categoryColors['color'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'Full custom color picker with hex/rgb input',
+    options: [
+      { key: 'enableAlpha', label: 'Enable alpha', type: 'boolean', default: false },
+      { key: 'copyFormat', label: 'Copy format', type: 'select', choices: ['hex', 'hsl', 'rgb'], default: 'hex' }
+    ]
+  },
+  {
+    name: 'ColorIndicator',
+    label: 'Color Indicator',
+    category: 'color',
+    package: '@wordpress/components',
+    color: categoryColors['color'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'Visual color swatch display (non-interactive)',
+    options: []
+  },
+  {
+    name: 'GradientPicker',
+    label: 'Gradient Picker',
+    category: 'color',
+    package: '@wordpress/components',
+    color: categoryColors['color'],
+    context: 'inspector',
+    canHaveChildren: false,
+    description: 'CSS gradient builder with visual stops editor',
+    options: []
+  },
+
+  // ── UI (@wordpress/components) ────────────────────────────────
+
+  {
+    name: 'Notice',
+    label: 'Notice',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'Notification message with status color and optional dismiss',
+    options: [
+      { key: 'status', label: 'Status', type: 'select', choices: ['info', 'success', 'warning', 'error'], default: 'info' },
+      { key: 'isDismissible', label: 'Dismissible', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'Spinner',
+    label: 'Spinner',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'Loading indicator animation',
+    options: []
+  },
+  {
+    name: 'Placeholder',
+    label: 'Placeholder',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'editor',
+    canHaveChildren: true,
+    description: 'Empty state placeholder with icon, label, and action buttons',
+    options: [
+      { key: 'icon', label: 'Icon', type: 'text', default: 'block-default', hint: 'Dashicon or SVG component' },
+      { key: 'label', label: 'Label', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'Tooltip',
+    label: 'Tooltip',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Hover tooltip wrapper for any element',
+    options: [
+      { key: 'text', label: 'Tooltip text', type: 'text', default: '' },
+      { key: 'position', label: 'Position', type: 'select', choices: ['top', 'bottom', 'left', 'right'], default: 'top' }
+    ]
+  },
+  {
+    name: 'Icon',
+    label: 'Icon',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'SVG icon display component',
+    options: [
+      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG component' },
+      { key: 'size', label: 'Size (px)', type: 'number', default: 24 }
+    ]
+  },
+  {
+    name: 'Dashicon',
+    label: 'Dashicon',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'WordPress Dashicon by name',
+    options: [
+      { key: 'icon', label: 'Dashicon name', type: 'text', default: 'admin-generic', hint: 'e.g., admin-post, format-image' }
+    ]
+  },
+  {
+    name: 'Disabled',
+    label: 'Disabled',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Wrapper that disables all child input components',
+    options: []
+  },
+  {
+    name: 'Dropdown',
+    label: 'Dropdown',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Dropdown toggle that reveals content on click',
+    options: [
+      { key: 'position', label: 'Position', type: 'select', choices: ['top left', 'top right', 'bottom left', 'bottom right'], default: 'bottom left' }
+    ]
+  },
+  {
+    name: 'DropdownMenu',
+    label: 'Dropdown Menu',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: false,
+    description: 'Icon-triggered dropdown menu with actions',
+    options: [
+      { key: 'icon', label: 'Trigger icon', type: 'text', default: 'ellipsis', hint: 'Dashicon name for the trigger button' },
+      { key: 'label', label: 'Accessible label', type: 'text', default: 'More options' }
+    ]
+  },
+  {
+    name: 'Modal',
+    label: 'Modal',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Modal dialog overlay with focus trapping',
+    options: [
+      { key: 'title', label: 'Title', type: 'text', default: '' },
+      { key: 'isDismissible', label: 'Show close button', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'TabPanel',
+    label: 'Tab Panel',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Tabbed content interface with multiple panels',
+    options: [
+      { key: 'orientation', label: 'Orientation', type: 'select', choices: ['horizontal', 'vertical'], default: 'horizontal' }
+    ]
+  },
+  {
+    name: 'Popover',
+    label: 'Popover',
+    category: 'ui',
+    package: '@wordpress/components',
+    color: categoryColors['ui'],
+    context: 'any',
+    canHaveChildren: true,
+    description: 'Floating content container anchored to a trigger element',
+    options: [
+      { key: 'position', label: 'Position', type: 'select', choices: ['top', 'bottom', 'left', 'right'], default: 'bottom' },
+      { key: 'noArrow', label: 'Hide arrow', type: 'boolean', default: false }
+    ]
   }
 ]
 
 /**
- * Find a registry entry by its component name (e.g. 'core/paragraph')
+ * Find a registry entry by its component name (e.g. 'RichText')
  */
 export function findRegistryEntry(name: string): RegistryEntry | undefined {
   return wpComponentRegistry.find(entry => entry.name === name)
@@ -367,6 +883,13 @@ export function findRegistryEntry(name: string): RegistryEntry | undefined {
  */
 export function getEntriesByCategory(category: ComponentCategory): RegistryEntry[] {
   return wpComponentRegistry.filter(entry => entry.category === category)
+}
+
+/**
+ * Get all registry entries for a given context
+ */
+export function getEntriesByContext(context: ComponentContext): RegistryEntry[] {
+  return wpComponentRegistry.filter(entry => entry.context === context || entry.context === 'any')
 }
 
 /**
@@ -382,6 +905,8 @@ export function getCategories(): ComponentCategory[] {
 export function searchRegistry(query: string): RegistryEntry[] {
   const q = query.toLowerCase()
   return wpComponentRegistry.filter(
-    entry => entry.name.toLowerCase().includes(q) || entry.label.toLowerCase().includes(q)
+    entry => entry.name.toLowerCase().includes(q)
+      || entry.label.toLowerCase().includes(q)
+      || entry.description.toLowerCase().includes(q)
   )
 }

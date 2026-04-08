@@ -14,7 +14,7 @@ const currentStep = computed(() => {
   return steps.some(s => s.value === path) ? path : 'build'
 })
 
-function onStepChange(value: string | number) {
+function onStepChange(value: string | number | undefined) {
   router.push(`/${value}`)
 }
 </script>
@@ -23,8 +23,9 @@ function onStepChange(value: string | number) {
   <div class="min-h-screen flex flex-col">
     <header class="border-b border-gray-200 dark:border-gray-800 px-4 py-4">
       <div class="max-w-5xl mx-auto">
-        <h1 class="text-xl font-bold mb-4">
-          WP Block Composer
+        <h1 class="text-[30px] font-normal text-monokai-fg text-center  pb-10 mx-auto mt-5 mb-10 flex items-center justify-center gap-2">
+					<UIcon name="i-lucide-blocks" class="size-10 text-monokai-fg relative -top-1" color="primary" />
+          WP <span class="text-monokai-yellow">Block</span> Composer
         </h1>
         <UStepper
           :items="steps"

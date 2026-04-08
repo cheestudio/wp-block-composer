@@ -11,6 +11,7 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+	debug: true,
 
   runtimeConfig: {
     // Server-only — never exposed to client

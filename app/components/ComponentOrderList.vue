@@ -3,6 +3,14 @@ import { VueDraggable } from 'vue-draggable-plus'
 import { findRegistryEntry } from '~~/shared/wpComponentRegistry'
 import type { ComponentItem, FlatOrderedItem } from '~/stores/componentStore'
 
+const contextLabels: Record<string, string> = {
+  editor: 'Editor',
+  inspector: 'Sidebar',
+  toolbar: 'Toolbar',
+  save: 'Save',
+  any: 'Any'
+}
+
 const emit = defineEmits<{
   edit: [item: ComponentItem]
 }>()
@@ -91,9 +99,15 @@ function isEmptyContainer(item: ComponentItem): boolean {
 
           <!-- Component info -->
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="font-medium text-sm">{{ flatItem.item.label }}</span>
-              <span class="text-xs text-gray-400">{{ flatItem.item.registryName }}</span>
+              <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ getRegistryEntry(flatItem.item.registryName)?.package.replace('@wordpress/', '@wp/') }}</span>
+              <UBadge
+                v-if="getRegistryEntry(flatItem.item.registryName)?.context"
+                :label="contextLabels[getRegistryEntry(flatItem.item.registryName)!.context]"
+                variant="subtle"
+                size="xs"
+              />
               <UBadge
                 v-if="getRegistryEntry(flatItem.item.registryName)?.canHaveChildren"
                 label="container"
@@ -111,12 +125,15 @@ function isEmptyContainer(item: ComponentItem): boolean {
               {{ formatOptions(flatItem.item.options) }}
             </div>
 
-            <!-- Notes preview -->
+            <!-- Attribute value preview -->
             <div
-              v-if="flatItem.item.notes"
-              class="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5 italic"
+              v-if="flatItem.item.attributeValue"
+              class="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5"
             >
-              {{ flatItem.item.notes }}
+              attr: <span class="font-mono">{{ flatItem.item.attributeValue }}</span>
+              <template v-if="flatItem.item.attributeType">
+                <span class="ml-1">({{ flatItem.item.attributeType }})</span>
+              </template>
             </div>
           </div>
 
