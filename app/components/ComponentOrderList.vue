@@ -23,13 +23,13 @@ const dragList = ref<FlatOrderedItem[]>([])
 watch(
   () => componentStore.flatOrdered,
   (val) => {
-    dragList.value = val.map(f => ({ item: f.item, depth: f.depth }))
+    dragList.value = val.map(flatItem => ({ item: flatItem.item, depth: flatItem.depth }))
   },
   { immediate: true }
 )
 
 function onDragEnd() {
-  componentStore.reorder(dragList.value.map(f => f.item.id))
+  componentStore.reorder(dragList.value.map(flatItem => flatItem.item.id))
 }
 
 function getRegistryEntry(registryName: string) {
@@ -37,9 +37,9 @@ function getRegistryEntry(registryName: string) {
 }
 
 function formatOptions(options: Record<string, unknown>): string {
-  const entries = Object.entries(options).filter(([, v]) => v !== '' && v !== false && v !== undefined)
+  const entries = Object.entries(options).filter(([, value]) => value !== '' && value !== false && value !== undefined)
   if (entries.length === 0) return ''
-  return entries.map(([k, v]) => `${k}: ${v}`).join(', ')
+  return entries.map(([key, value]) => `${key}: ${value}`).join(', ')
 }
 
 function getRowActions(flatItem: FlatOrderedItem) {
@@ -70,6 +70,7 @@ function isEmptyContainer(item: ComponentItem): boolean {
   <VueDraggable
     v-model="dragList"
     :animation="150"
+		display="nested"
     handle=".drag-handle"
     @end="onDragEnd"
   >
@@ -101,19 +102,19 @@ function isEmptyContainer(item: ComponentItem): boolean {
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="font-medium text-sm">{{ flatItem.item.label }}</span>
-              <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ getRegistryEntry(flatItem.item.registryName)?.package.replace('@wordpress/', '@wp/') }}</span>
+              <span class="text-[13px] text-gray-400 dark:text-gray-500">{{ getRegistryEntry(flatItem.item.registryName)?.registryPackage.replace('@wordpress/', '@wp/') }}</span>
               <UBadge
                 v-if="getRegistryEntry(flatItem.item.registryName)?.context"
                 :label="contextLabels[getRegistryEntry(flatItem.item.registryName)!.context]"
                 variant="subtle"
-                size="xs"
+                size="sm"
               />
               <UBadge
                 v-if="getRegistryEntry(flatItem.item.registryName)?.canHaveChildren"
                 label="container"
                 variant="subtle"
                 color="warning"
-                size="xs"
+                size="sm"
               />
             </div>
 
@@ -146,7 +147,7 @@ function isEmptyContainer(item: ComponentItem): boolean {
               icon="i-lucide-ellipsis-vertical"
               variant="ghost"
               color="neutral"
-              size="xs"
+              size="sm"
             />
           </UDropdownMenu>
         </div>

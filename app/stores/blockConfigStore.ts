@@ -1,18 +1,28 @@
-import type { BlockOptionsSchema } from '~/types/schemas/blockJsonSchema';
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+
+import { BlockOptionsSchema } from '~/types/schemas/blockJsonSchema'
 
 export const useBlockConfigStore = defineStore('blockConfig', () => {
 
-	const blockType = ref<'static' | 'dynamic'>('static');
-	const blockOptions = ref<BlockOptionsSchema | null>(null);
+	const blockType = ref('static') as Ref<'static' | 'dynamic'>;
+	const { data: defaults } = BlockOptionsSchema.safeParse({})
+	
+	const blockConfigState = ref<Partial<BlockOptionsSchema>>({ 
+		...defaults
+	});
 
 	const setBlockOptions = (data: BlockOptionsSchema) => {
-		blockOptions.value = data
+		if(!data) {
+			throw new Error('No data provided')
+		}
+		blockConfigState.value = data; 
 	}
 
 	return {
-		blockOptions,
-		setBlockOptions,
 		blockType,
+		blockConfigState,
+		setBlockOptions,
 	}
 
 });

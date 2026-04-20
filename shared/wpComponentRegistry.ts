@@ -7,7 +7,7 @@
 //
 // These are NOT end-user content blocks (core/paragraph, core/image, etc.).
 
-export type ComponentCategory = 'interface' | 'input' | 'color' | 'ui'
+export type ComponentCategory = 'input' | 'interface' | 'color' | 'ui'
 
 export type ComponentContext =
   | 'editor'     // Used in the block's main edit area
@@ -15,6 +15,15 @@ export type ComponentContext =
   | 'toolbar'    // Used inside BlockControls (toolbar)
   | 'save'       // Used in save.js output
   | 'any'        // Can be used in any context
+
+export type BlockAttributeJsonType =
+  | 'string'
+  | 'boolean'
+  | 'object'
+  | 'array'
+  | 'integer'
+  | 'number'
+  | 'null'
 
 export interface RegistryOption {
   key: string
@@ -29,326 +38,35 @@ export interface RegistryEntry {
   name: string
   label: string
   category: ComponentCategory
-  package: string
+  registryPackage: string
   color: string
   context: ComponentContext
+  defaultAttribute: BlockAttributeJsonType
   canHaveChildren: boolean
   description: string
   options: RegistryOption[]
 }
 
 const categoryColors: Record<ComponentCategory, string> = {
-  'interface': '#3b82f6',
-  'input': '#10b981',
-  'color': '#8b5cf6',
-  'ui': '#ef4444'
+  'interface': '#fd971f',
+  'input': '#66d9ef',
+  'color': '#f92672',
+  'ui': '#ae81ff'
 }
 
 export const wpComponentRegistry: RegistryEntry[] = [
-  // ── Interface (@wordpress/block-editor + @wordpress/components) ──
 
-  {
-    name: 'InspectorControls',
-    label: 'Inspector Controls',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'inspector',
-    canHaveChildren: true,
-    description: 'Sidebar panel container for block settings',
-    options: []
-  },
-  {
-    name: 'InspectorAdvancedControls',
-    label: 'Inspector Advanced Controls',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'inspector',
-    canHaveChildren: true,
-    description: 'Advanced section in sidebar (collapsed by default)',
-    options: []
-  },
-  {
-    name: 'BlockControls',
-    label: 'Block Controls',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'toolbar',
-    canHaveChildren: true,
-    description: 'Block toolbar container shown above selected block',
-    options: [
-      { key: 'group', label: 'Toolbar group', type: 'select', choices: ['default', 'block', 'inline', 'other', 'parent'], default: 'default', hint: 'Which toolbar section to place controls in' }
-    ]
-  },
-  {
-    name: 'AlignmentToolbar',
-    label: 'Alignment Toolbar',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'toolbar',
-    canHaveChildren: false,
-    description: 'Text alignment control (left, center, right)',
-    options: []
-  },
-  {
-    name: 'BlockAlignmentToolbar',
-    label: 'Block Alignment Toolbar',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'toolbar',
-    canHaveChildren: false,
-    description: 'Block-level alignment control (center, wide, full width)',
-    options: [
-      { key: 'controls', label: 'Alignment options', type: 'text', default: 'center,wide,full', hint: 'Comma-separated alignment values' }
-    ]
-  },
-  {
-    name: 'BlockVerticalAlignmentToolbar',
-    label: 'Block Vertical Alignment',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'toolbar',
-    canHaveChildren: false,
-    description: 'Vertical alignment control (top, center, bottom)',
-    options: []
-  },
-  {
-    name: 'BlockIcon',
-    label: 'Block Icon',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: false,
-    description: 'Renders a block type icon (Dashicon or SVG)',
-    options: [
-      { key: 'icon', label: 'Icon name', type: 'text', default: 'block-default', hint: 'Dashicon name or SVG component' }
-    ]
-  },
-  {
-    name: 'BlockVariationPicker',
-    label: 'Block Variation Picker',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'editor',
-    canHaveChildren: false,
-    description: 'UI for selecting between block variations on initial placement',
-    options: []
-  },
-  {
-    name: 'MediaPlaceholder',
-    label: 'Media Placeholder',
-    category: 'interface',
-    package: '@wordpress/block-editor',
-    color: categoryColors['interface'],
-    context: 'editor',
-    canHaveChildren: false,
-    description: 'Placeholder UI for media selection with upload and URL options',
-    options: [
-      { key: 'allowedTypes', label: 'Allowed types', type: 'text', default: 'image', hint: 'Comma-separated: image, video, audio' },
-      { key: 'multiple', label: 'Allow multiple', type: 'boolean', default: false },
-      { key: 'labels', label: 'Label text', type: 'text', default: '', hint: 'Label shown on the placeholder' }
-    ]
-  },
-  {
-    name: 'PanelBody',
-    label: 'Panel Body',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'inspector',
-    canHaveChildren: true,
-    description: 'Collapsible panel section for grouping sidebar controls',
-    options: [
-      { key: 'title', label: 'Panel title', type: 'text', default: '', hint: 'Heading text for the collapsible section' },
-      { key: 'initialOpen', label: 'Initially open', type: 'boolean', default: true }
-    ]
-  },
-  {
-    name: 'PanelRow',
-    label: 'Panel Row',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'inspector',
-    canHaveChildren: true,
-    description: 'Horizontal row layout within a panel section',
-    options: []
-  },
-  {
-    name: 'BaseControl',
-    label: 'Base Control',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'inspector',
-    canHaveChildren: true,
-    description: 'Label and help text wrapper for custom form inputs',
-    options: [
-      { key: 'label', label: 'Label', type: 'text', default: '' },
-      { key: 'help', label: 'Help text', type: 'text', default: '' }
-    ]
-  },
-  {
-    name: 'Card',
-    label: 'Card',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Card container with optional header, body, footer sections',
-    options: [
-      { key: 'size', label: 'Size', type: 'select', choices: ['small', 'medium', 'large'], default: 'medium' },
-      { key: 'isBorderless', label: 'Borderless', type: 'boolean', default: false }
-    ]
-  },
-  {
-    name: 'CardBody',
-    label: 'Card Body',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Main content area within a Card',
-    options: []
-  },
-  {
-    name: 'CardHeader',
-    label: 'Card Header',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Header section within a Card',
-    options: []
-  },
-  {
-    name: 'Flex',
-    label: 'Flex',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Flexbox container for arranging child components',
-    options: [
-      { key: 'direction', label: 'Direction', type: 'select', choices: ['row', 'column'], default: 'row' },
-      { key: 'gap', label: 'Gap (px)', type: 'number', default: 8 },
-      { key: 'wrap', label: 'Wrap', type: 'boolean', default: false },
-      { key: 'justify', label: 'Justify', type: 'select', choices: ['flex-start', 'center', 'flex-end', 'space-between', 'space-around'], default: 'flex-start' },
-      { key: 'align', label: 'Align', type: 'select', choices: ['flex-start', 'center', 'flex-end', 'stretch'], default: 'center' }
-    ]
-  },
-  {
-    name: 'FlexItem',
-    label: 'Flex Item',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Child element within a Flex container',
-    options: []
-  },
-  {
-    name: 'ToolbarGroup',
-    label: 'Toolbar Group',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'toolbar',
-    canHaveChildren: true,
-    description: 'Groups toolbar buttons with visual separator',
-    options: []
-  },
-  {
-    name: 'ToolbarButton',
-    label: 'Toolbar Button',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'toolbar',
-    canHaveChildren: false,
-    description: 'Individual button in the block toolbar',
-    options: [
-      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG' },
-      { key: 'title', label: 'Tooltip title', type: 'text', default: '' },
-      { key: 'isActive', label: 'Active state', type: 'boolean', default: false }
-    ]
-  },
-  {
-    name: 'ButtonGroup',
-    label: 'Button Group',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Grouped button container without spacing',
-    options: []
-  },
-  {
-    name: 'MenuGroup',
-    label: 'Menu Group',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: true,
-    description: 'Groups menu items with optional label',
-    options: [
-      { key: 'label', label: 'Group label', type: 'text', default: '' }
-    ]
-  },
-  {
-    name: 'MenuItem',
-    label: 'Menu Item',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: false,
-    description: 'Individual item within a menu group',
-    options: [
-      { key: 'icon', label: 'Icon', type: 'text', default: '' },
-      { key: 'isDestructive', label: 'Destructive', type: 'boolean', default: false }
-    ]
-  },
-  {
-    name: 'Button',
-    label: 'Button',
-    category: 'interface',
-    package: '@wordpress/components',
-    color: categoryColors['interface'],
-    context: 'any',
-    canHaveChildren: false,
-    description: 'Clickable button with icon and variant support',
-    options: [
-      { key: 'variant', label: 'Variant', type: 'select', choices: ['primary', 'secondary', 'tertiary', 'link'], default: 'secondary' },
-      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG' },
-      { key: 'isDestructive', label: 'Destructive', type: 'boolean', default: false },
-      { key: 'isSmall', label: 'Small size', type: 'boolean', default: false }
-    ]
-  },
-
+	
   // ── Input (@wordpress/block-editor + @wordpress/components) ─────
 
   {
     name: 'RichText',
     label: 'Rich Text',
     category: 'input',
-    package: '@wordpress/block-editor',
+    registryPackage: '@wordpress/block-editor',
     color: categoryColors['input'],
     context: 'editor',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Editable rich text field with formatting toolbar',
     options: [
@@ -362,9 +80,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'InnerBlocks',
     label: 'Inner Blocks',
     category: 'input',
-    package: '@wordpress/block-editor',
+    registryPackage: '@wordpress/block-editor',
     color: categoryColors['input'],
     context: 'editor',
+    defaultAttribute: 'null',
     canHaveChildren: false,
     description: 'Nested block container allowing child blocks inside this block',
     options: [
@@ -377,23 +96,26 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'MediaUpload',
     label: 'Media Upload',
     category: 'input',
-    package: '@wordpress/block-editor',
+    registryPackage: '@wordpress/block-editor',
     color: categoryColors['input'],
     context: 'any',
+    defaultAttribute: 'object',
     canHaveChildren: false,
     description: 'Media library upload trigger for images, videos, and files',
     options: [
       { key: 'allowedTypes', label: 'Allowed types', type: 'text', default: 'image', hint: 'Comma-separated: image, video, audio' },
-      { key: 'multiple', label: 'Allow multiple', type: 'boolean', default: false }
+      { key: 'multiple', label: 'Returns an array of media objects', type: 'boolean', default: false },
+      { key: 'gallery', label: 'Enable gallery mode (multiple selection)', type: 'boolean', default: false }
     ]
   },
   {
     name: 'TextControl',
     label: 'Text Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Single-line text input for block settings',
     options: [
@@ -406,9 +128,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'TextareaControl',
     label: 'Textarea Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Multi-line text input for longer content',
     options: [
@@ -421,9 +144,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ToggleControl',
     label: 'Toggle Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'boolean',
     canHaveChildren: false,
     description: 'On/off switch for boolean settings',
     options: [
@@ -435,9 +159,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'SelectControl',
     label: 'Select Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Dropdown select for choosing from predefined options',
     options: [
@@ -450,9 +175,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'RangeControl',
     label: 'Range Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'number',
     canHaveChildren: false,
     description: 'Numeric slider for range values (e.g., opacity, columns)',
     options: [
@@ -468,9 +194,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'CheckboxControl',
     label: 'Checkbox Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'boolean',
     canHaveChildren: false,
     description: 'Single checkbox for boolean options',
     options: [
@@ -482,9 +209,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'RadioControl',
     label: 'Radio Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Radio button group for mutually exclusive choices',
     options: [
@@ -496,9 +224,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ComboboxControl',
     label: 'Combobox Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Searchable dropdown for large option sets',
     options: [
@@ -510,9 +239,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'NumberControl',
     label: 'Number Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'number',
     canHaveChildren: false,
     description: 'Numeric input with optional stepper buttons',
     options: [
@@ -526,9 +256,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'AnglePickerControl',
     label: 'Angle Picker',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'number',
     canHaveChildren: false,
     description: 'Angle/rotation input with visual dial',
     options: [
@@ -539,9 +270,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'FontSizePicker',
     label: 'Font Size Picker',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Theme-aware font size selector with presets',
     options: [
@@ -553,9 +285,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'UnitControl',
     label: 'Unit Control',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Number input with CSS unit selector (px, em, rem, %)',
     options: [
@@ -567,9 +300,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'DateTimePicker',
     label: 'Date Time Picker',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Combined date and time picker',
     options: [
@@ -580,9 +314,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'TimePicker',
     label: 'Time Picker',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Time-only selection control',
     options: [
@@ -593,9 +328,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'DatePicker',
     label: 'Date Picker',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Date-only selection calendar',
     options: []
@@ -604,14 +340,333 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'FormTokenField',
     label: 'Form Token Field',
     category: 'input',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['input'],
     context: 'inspector',
+    defaultAttribute: 'array',
     canHaveChildren: false,
     description: 'Tag/token input for multiple values (like keywords)',
     options: [
       { key: 'label', label: 'Label', type: 'text', default: '' },
       { key: 'maxLength', label: 'Max tokens', type: 'number', default: 0, hint: '0 = unlimited' }
+    ]
+  },
+
+  // ── Interface (@wordpress/block-editor + @wordpress/components) ──
+
+  {
+    name: 'InspectorControls',
+    label: 'Inspector Controls',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'inspector',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Sidebar panel container for block settings',
+    options: []
+  },
+  {
+    name: 'InspectorAdvancedControls',
+    label: 'Inspector Advanced Controls',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'inspector',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Advanced section in sidebar (collapsed by default)',
+    options: []
+  },
+  {
+    name: 'BlockControls',
+    label: 'Block Controls',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Block toolbar container shown above selected block',
+    options: [
+      { key: 'group', label: 'Toolbar group', type: 'select', choices: ['default', 'block', 'inline', 'other', 'parent'], default: 'default', hint: 'Which toolbar section to place controls in' }
+    ]
+  },
+  {
+    name: 'AlignmentToolbar',
+    label: 'Alignment Toolbar',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    defaultAttribute: 'string',
+    canHaveChildren: false,
+    description: 'Text alignment control (left, center, right)',
+    options: []
+  },
+  {
+    name: 'BlockAlignmentToolbar',
+    label: 'Block Alignment Toolbar',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    defaultAttribute: 'string',
+    canHaveChildren: false,
+    description: 'Block-level alignment control (center, wide, full width)',
+    options: [
+      { key: 'controls', label: 'Alignment options', type: 'text', default: 'center,wide,full', hint: 'Comma-separated alignment values' }
+    ]
+  },
+  {
+    name: 'BlockVerticalAlignmentToolbar',
+    label: 'Block Vertical Alignment',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    defaultAttribute: 'string',
+    canHaveChildren: false,
+    description: 'Vertical alignment control (top, center, bottom)',
+    options: []
+  },
+  {
+    name: 'BlockIcon',
+    label: 'Block Icon',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'string',
+    canHaveChildren: false,
+    description: 'Renders a block type icon (Dashicon or SVG)',
+    options: [
+      { key: 'icon', label: 'Icon name', type: 'text', default: 'block-default', hint: 'Dashicon name or SVG component' }
+    ]
+  },
+  {
+    name: 'BlockVariationPicker',
+    label: 'Block Variation Picker',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'editor',
+    defaultAttribute: 'string',
+    canHaveChildren: false,
+    description: 'UI for selecting between block variations on initial placement',
+    options: []
+  },
+  {
+    name: 'MediaPlaceholder',
+    label: 'Media Placeholder',
+    category: 'interface',
+    registryPackage: '@wordpress/block-editor',
+    color: categoryColors['interface'],
+    context: 'editor',
+    defaultAttribute: 'object',
+    canHaveChildren: false,
+    description: 'Placeholder UI for media selection with upload and URL options',
+    options: [
+      { key: 'allowedTypes', label: 'Allowed types', type: 'text', default: 'image', hint: 'Comma-separated: image, video, audio' },
+      { key: 'multiple', label: 'Allow multiple', type: 'boolean', default: false },
+      { key: 'labels', label: 'Label text', type: 'text', default: '', hint: 'Label shown on the placeholder' }
+    ]
+  },
+  {
+    name: 'PanelBody',
+    label: 'Panel Body',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'inspector',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Collapsible panel section for grouping sidebar controls',
+    options: [
+      { key: 'title', label: 'Panel title', type: 'text', default: '', hint: 'Heading text for the collapsible section' },
+      { key: 'initialOpen', label: 'Initially open', type: 'boolean', default: true }
+    ]
+  },
+  {
+    name: 'PanelRow',
+    label: 'Panel Row',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'inspector',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Horizontal row layout within a panel section',
+    options: []
+  },
+  {
+    name: 'BaseControl',
+    label: 'Base Control',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'inspector',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Label and help text wrapper for custom form inputs',
+    options: [
+      { key: 'label', label: 'Label', type: 'text', default: '' },
+      { key: 'help', label: 'Help text', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'Card',
+    label: 'Card',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Card container with optional header, body, footer sections',
+    options: [
+      { key: 'size', label: 'Size', type: 'select', choices: ['small', 'medium', 'large'], default: 'medium' },
+      { key: 'isBorderless', label: 'Borderless', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'CardBody',
+    label: 'Card Body',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Main content area within a Card',
+    options: []
+  },
+  {
+    name: 'CardHeader',
+    label: 'Card Header',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Header section within a Card',
+    options: []
+  },
+  {
+    name: 'Flex',
+    label: 'Flex',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Flexbox container for arranging child components',
+    options: [
+      { key: 'direction', label: 'Direction', type: 'select', choices: ['row', 'column'], default: 'row' },
+      { key: 'gap', label: 'Gap (px)', type: 'number', default: 8 },
+      { key: 'wrap', label: 'Wrap', type: 'boolean', default: false },
+      { key: 'justify', label: 'Justify', type: 'select', choices: ['flex-start', 'center', 'flex-end', 'space-between', 'space-around'], default: 'flex-start' },
+      { key: 'align', label: 'Align', type: 'select', choices: ['flex-start', 'center', 'flex-end', 'stretch'], default: 'center' }
+    ]
+  },
+  {
+    name: 'FlexItem',
+    label: 'Flex Item',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Child element within a Flex container',
+    options: []
+  },
+  {
+    name: 'ToolbarGroup',
+    label: 'Toolbar Group',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Groups toolbar buttons with visual separator',
+    options: []
+  },
+  {
+    name: 'ToolbarButton',
+    label: 'Toolbar Button',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'toolbar',
+    defaultAttribute: 'boolean',
+    canHaveChildren: false,
+    description: 'Individual button in the block toolbar',
+    options: [
+      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG' },
+      { key: 'title', label: 'Tooltip title', type: 'text', default: '' },
+      { key: 'isActive', label: 'Active state', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'ButtonGroup',
+    label: 'Button Group',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Grouped button container without spacing',
+    options: []
+  },
+  {
+    name: 'MenuGroup',
+    label: 'Menu Group',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: true,
+    description: 'Groups menu items with optional label',
+    options: [
+      { key: 'label', label: 'Group label', type: 'text', default: '' }
+    ]
+  },
+  {
+    name: 'MenuItem',
+    label: 'Menu Item',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'string',
+    canHaveChildren: false,
+    description: 'Individual item within a menu group',
+    options: [
+      { key: 'icon', label: 'Icon', type: 'text', default: '' },
+      { key: 'isDestructive', label: 'Destructive', type: 'boolean', default: false }
+    ]
+  },
+  {
+    name: 'Button',
+    label: 'Button',
+    category: 'interface',
+    registryPackage: '@wordpress/components',
+    color: categoryColors['interface'],
+    context: 'any',
+    defaultAttribute: 'null',
+    canHaveChildren: false,
+    description: 'Clickable button with icon and variant support',
+    options: [
+      { key: 'variant', label: 'Variant', type: 'select', choices: ['primary', 'secondary', 'tertiary', 'link'], default: 'secondary' },
+      { key: 'icon', label: 'Icon', type: 'text', default: '', hint: 'Dashicon name or SVG' },
+      { key: 'isDestructive', label: 'Destructive', type: 'boolean', default: false },
+      { key: 'isSmall', label: 'Small size', type: 'boolean', default: false }
     ]
   },
 
@@ -621,9 +676,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ColorPaletteControl',
     label: 'Color Palette Control',
     category: 'color',
-    package: '@wordpress/block-editor',
+    registryPackage: '@wordpress/block-editor',
     color: categoryColors['color'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Theme-aware color palette selector (uses editor color settings)',
     options: [
@@ -634,9 +690,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ContrastChecker',
     label: 'Contrast Checker',
     category: 'color',
-    package: '@wordpress/block-editor',
+    registryPackage: '@wordpress/block-editor',
     color: categoryColors['color'],
     context: 'inspector',
+    defaultAttribute: 'null',
     canHaveChildren: false,
     description: 'WCAG 2.0 AA contrast validation between text and background colors',
     options: [
@@ -647,9 +704,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ColorGradientControl',
     label: 'Color Gradient Control',
     category: 'color',
-    package: '@wordpress/block-editor',
+    registryPackage: '@wordpress/block-editor',
     color: categoryColors['color'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Combined color and gradient picker using theme settings',
     options: [
@@ -661,9 +719,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ColorPalette',
     label: 'Color Palette',
     category: 'color',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['color'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Preset color selection from a defined palette',
     options: [
@@ -675,9 +734,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ColorPicker',
     label: 'Color Picker',
     category: 'color',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['color'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Full custom color picker with hex/rgb input',
     options: [
@@ -689,9 +749,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'ColorIndicator',
     label: 'Color Indicator',
     category: 'color',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['color'],
     context: 'any',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Visual color swatch display (non-interactive)',
     options: []
@@ -700,9 +761,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'GradientPicker',
     label: 'Gradient Picker',
     category: 'color',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['color'],
     context: 'inspector',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'CSS gradient builder with visual stops editor',
     options: []
@@ -714,9 +776,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Notice',
     label: 'Notice',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'Notification message with status color and optional dismiss',
     options: [
@@ -728,9 +791,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Spinner',
     label: 'Spinner',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'null',
     canHaveChildren: false,
     description: 'Loading indicator animation',
     options: []
@@ -739,9 +803,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Placeholder',
     label: 'Placeholder',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'editor',
+    defaultAttribute: 'null',
     canHaveChildren: true,
     description: 'Empty state placeholder with icon, label, and action buttons',
     options: [
@@ -753,9 +818,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Tooltip',
     label: 'Tooltip',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'string',
     canHaveChildren: true,
     description: 'Hover tooltip wrapper for any element',
     options: [
@@ -767,9 +833,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Icon',
     label: 'Icon',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'SVG icon display component',
     options: [
@@ -781,9 +848,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Dashicon',
     label: 'Dashicon',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'string',
     canHaveChildren: false,
     description: 'WordPress Dashicon by name',
     options: [
@@ -794,9 +862,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Disabled',
     label: 'Disabled',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'null',
     canHaveChildren: true,
     description: 'Wrapper that disables all child input components',
     options: []
@@ -805,9 +874,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Dropdown',
     label: 'Dropdown',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'null',
     canHaveChildren: true,
     description: 'Dropdown toggle that reveals content on click',
     options: [
@@ -818,9 +888,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'DropdownMenu',
     label: 'Dropdown Menu',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'null',
     canHaveChildren: false,
     description: 'Icon-triggered dropdown menu with actions',
     options: [
@@ -832,9 +903,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Modal',
     label: 'Modal',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'null',
     canHaveChildren: true,
     description: 'Modal dialog overlay with focus trapping',
     options: [
@@ -846,9 +918,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'TabPanel',
     label: 'Tab Panel',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'string',
     canHaveChildren: true,
     description: 'Tabbed content interface with multiple panels',
     options: [
@@ -859,9 +932,10 @@ export const wpComponentRegistry: RegistryEntry[] = [
     name: 'Popover',
     label: 'Popover',
     category: 'ui',
-    package: '@wordpress/components',
+    registryPackage: '@wordpress/components',
     color: categoryColors['ui'],
     context: 'any',
+    defaultAttribute: 'null',
     canHaveChildren: true,
     description: 'Floating content container anchored to a trigger element',
     options: [

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { BlockOptionsSchema } from '~/types/schemas/blockJsonSchema'
+
+import { BlockOptionsSchema as schema } from '~/types/schemas/blockJsonSchema';
 
 const blockConfigStore = useBlockConfigStore()
-const toast = useToast()
+
+const { blockConfigState: state } = storeToRefs(blockConfigStore);
 
 const alignOptions = [
   { label: 'Left', value: 'left' },
@@ -43,66 +44,6 @@ const apiVersionItems = [
   { label: 'Version 3 (recommended)', value: 3 },
 ]
 
-const state = reactive<Partial<BlockOptionsSchema>>({
-  name: '',
-  title: '',
-  description: '',
-  category: 'text',
-  icon: '',
-  keywords: [],
-  textdomain: '',
-  apiVersion: 3,
-  version: '0.1.0',
-  parent: [],
-  ancestor: [],
-  allowedBlocks: [],
-  supports: {
-    anchor: false,
-    align: false,
-    alignWide: true,
-    className: true,
-    customClassName: true,
-    html: true,
-    inserter: true,
-    multiple: true,
-    reusable: true,
-    lock: true,
-    renaming: true,
-    splitting: false,
-    color: {
-      text: true,
-      background: true,
-      link: false,
-      gradients: false,
-      heading: false,
-      button: false,
-    },
-    typography: {
-      fontSize: false,
-      lineHeight: false,
-      textAlign: false,
-    },
-    spacing: {
-      margin: false,
-      padding: false,
-    },
-    dimensions: {
-      minHeight: false,
-      aspectRatio: false,
-    },
-    border: {
-      radius: false,
-      color: false,
-      width: false,
-      style: false,
-    },
-    layout: false,
-    position: {
-      sticky: false,
-    },
-  },
-})
-
 const alignSelected = ref<string[]>([])
 const marginSides = ref<string[]>([])
 const paddingSides = ref<string[]>([])
@@ -115,56 +56,57 @@ const layoutAllowJustification = ref(true)
 const layoutAllowOrientation = ref(true)
 const marginEnabled = ref(false)
 const paddingEnabled = ref(false)
+const supportState = state.value?.supports;
 
 watch(alignSelected, (val) => {
-  if (!state.supports) return
-  if (val.length === 0) state.supports.align = false
-  else if (val.length === alignOptions.length) state.supports.align = true
-  else state.supports.align = val as ('left' | 'center' | 'right' | 'wide' | 'full')[]
+  if (!supportState) return
+  if (val.length === 0) supportState.align = false
+  else if (val.length === alignOptions.length) supportState.align = true
+  else supportState.align = val as ('left' | 'center' | 'right' | 'wide' | 'full')[]
 })
 
 watch(marginEnabled, (val) => {
-  if (!state.supports?.spacing) return
+  if (!supportState?.spacing) return
   if (!val) {
-    state.supports.spacing.margin = false
+    supportState.spacing.margin = false
     marginSides.value = []
   } else {
-    state.supports.spacing.margin = marginSides.value.length ? marginSides.value as any : true
+    supportState.spacing.margin = marginSides.value.length ? marginSides.value as [] : true
   }
 })
 
 watch(marginSides, (val) => {
-  if (!state.supports?.spacing || !marginEnabled.value) return
-  state.supports.spacing.margin = val.length === spacingSideOptions.length ? true : val.length ? val as any : true
+  if (!supportState?.spacing || !marginEnabled.value) return
+  supportState.spacing.margin = val.length === spacingSideOptions.length ? true : val.length ? val as [] : true
 })
 
 watch(paddingEnabled, (val) => {
-  if (!state.supports?.spacing) return
+  if (!supportState?.spacing) return
   if (!val) {
-    state.supports.spacing.padding = false
+    supportState.spacing.padding = false
     paddingSides.value = []
   } else {
-    state.supports.spacing.padding = paddingSides.value.length ? paddingSides.value as any : true
+    supportState.spacing.padding = paddingSides.value.length ? paddingSides.value as [] : true
   }
 })
 
 watch(paddingSides, (val) => {
-  if (!state.supports?.spacing || !paddingEnabled.value) return
-  state.supports.spacing.padding = val.length === spacingSideOptions.length ? true : val.length ? val as any : true
+  if (!supportState?.spacing || !paddingEnabled.value) return
+  supportState.spacing.padding = val.length === spacingSideOptions.length ? true : val.length ? val as [] : true
 })
 
 watch(layoutEnabled, (val) => {
-  if (!state.supports) return
+  if (!supportState) return
   if (!val) {
-    state.supports.layout = false
+    supportState.layout = false
   } else {
     syncLayoutObject()
   }
 })
 
 const syncLayoutObject = () => {
-  if (!state.supports || !layoutEnabled.value) return
-  state.supports.layout = {
+  if (!supportState || !layoutEnabled.value) return
+  supportState.layout = {
     allowSwitching: layoutAllowSwitching.value,
     allowInheriting: layoutAllowInheriting.value,
     allowVerticalAlignment: layoutAllowVerticalAlignment.value,
@@ -176,15 +118,7 @@ const syncLayoutObject = () => {
 
 watch([layoutAllowSwitching, layoutAllowInheriting, layoutAllowVerticalAlignment, layoutAllowJustification, layoutAllowOrientation, layoutDefaultType], syncLayoutObject)
 
-const handleSubmit = (event: FormSubmitEvent<BlockOptionsSchema>) => {
-  blockConfigStore.setBlockOptions(event.data)
 
-	toast.add({
-		title: 'Block configuration saved',
-		description: 'Your block configuration has been saved.',
-		color: 'success',
-	})
-}
 
 </script>
 
@@ -198,10 +132,10 @@ const handleSubmit = (event: FormSubmitEvent<BlockOptionsSchema>) => {
     </p>
 
     <UForm
-      :schema="BlockOptionsSchema"
+      :schema="schema"
       :state="state"
       class="space-y-0"
-      @submit="handleSubmit"
+      
     >
       <div class="space-y-10">
 
@@ -270,14 +204,10 @@ const handleSubmit = (event: FormSubmitEvent<BlockOptionsSchema>) => {
               <UFormField label="Icon" name="icon" hint="Dashicons identifier or leave blank">
                 <UInput
                   v-model="state.icon"
-                  placeholder="star-filled"
                   class="w-full"
+									placeholder="dashicon name e.g. block-default"
                   aria-label="Block icon (Dashicons identifier)"
-                >
-                  <template #leading>
-                    <span class="text-xs text-gray-400 select-none pl-1 pointer-events-none">dashicons-</span>
-                  </template>
-                </UInput>
+                />
               </UFormField>
             </div>
 
@@ -786,17 +716,6 @@ const handleSubmit = (event: FormSubmitEvent<BlockOptionsSchema>) => {
           </div>
         </div>
 
-      </div>
-
-      <div class="flex justify-end pt-10">
-        <UButton
-          type="submit"
-          color="primary"
-          size="md"
-          aria-label="Save block configuration"
-        >
-          Save Configuration
-        </UButton>
       </div>
     </UForm>
   </div>

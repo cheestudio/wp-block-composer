@@ -18,6 +18,8 @@
 	--color-monokai-selection: #49483e;
 	--color-monokai-line: #3e3d32;
 	--color-monokai-gutter: #90908a;
+	--text-xs: 14px;
+	--text-sm: 15px;
 }
 
 :root {
@@ -44,30 +46,44 @@ body {
 }
 
 @layer components {
-	
-h1 {
-	@apply text-4xl font-normal mb-10;
-}
-h2 {
-	@apply text-3xl font-normal mb-8;
-}
-h3 {
-	@apply text-2xl font-normal mb-6;
-}
-h4 {
-	@apply text-xl font-normal mb-5;
-}
-h5 {
-	@apply text-xl font-normal mb-4;
-}
-h6 {
-	@apply text-lg font-normal mb-3;
+
+	h1 {
+		@apply text-4xl font-normal mb-10;
+	}
+	h2 {
+		@apply text-3xl font-normal mb-8;
+	}
+	h3 {
+		@apply text-2xl font-normal mb-6;
+	}
+	h4 {
+		@apply text-xl font-normal mb-5;
+	}
+	h5 {
+		@apply text-xl font-normal mb-4;
+	}
+	h6 {
+		@apply text-lg font-normal mb-3;
+	}
+
+	p {
+		@apply mb-5 leading-relaxed;
+	}
+	p a {
+		@apply underline decoration-1 decoration-monokai-yellow underline-offset-5 decoration-dashed hover:decoration-solid hover:decoration-monokai-red hover:underline-offset-2 hover:decoration-2 transition-all
+	}
 }
 
-p {
-	@apply mb-5 leading-relaxed;
+.page-enter-active,
+.page-leave-active {
+	transition: all 0.2s;
 }
-p a {
-	@apply underline decoration-1 decoration-monokai-yellow underline-offset-5 decoration-dashed hover:decoration-solid hover:decoration-monokai-red hover:underline-offset-2 hover:decoration-2 transition-all
+.page-enter-from {
+	opacity: 0;
+	filter: blur(5px);
 }
+
+.page-leave-to {
+	opacity: 0;
+	filter: blur(5px);
 }

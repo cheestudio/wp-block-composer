@@ -13,8 +13,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	'update:open': [value: boolean]
-	'save': [data: { registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string }]
-}>()
+	'save': [data: { registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string, registryPackage: string }]
+}>();
 
 // ── State ────────────────────────────────────────────────────
 
@@ -22,31 +22,33 @@ const searchQuery = ref('')
 const activeCategory = ref<ComponentCategory | null>(null)
 const selectedEntry = ref<RegistryEntry | null>(null)
 const optionValues = ref<Record<string, unknown>>({})
+const attributeValueRef = useTemplateRef('attributeValueRef')
+const attributeTypeRef = useTemplateRef('attributeTypeRef')
 const attributeValue = ref('')
 const attributeType = ref('')
 
 const attributeTypeOptions = [
-{ label: 'string', value: 'string' },
-{ label: 'boolean', value: 'boolean' },
-{ label: 'object', value: 'object' },
-{ label: 'array', value: 'array' },
-{ label: 'integer', value: 'integer' },
-{ label: 'number', value: 'number' },
-{ label: 'null', value: 'null' },
+	{ label: 'string', value: 'string' },
+	{ label: 'boolean', value: 'boolean' },
+	{ label: 'object', value: 'object' },
+	{ label: 'array', value: 'array' },
+	{ label: 'integer', value: 'integer' },
+	{ label: 'number', value: 'number' },
+	{ label: 'null', value: 'null' },
 ]
 
 const categories = getCategories()
 
 const categoryIcons: Record<ComponentCategory, string> = {
-	'interface': 'i-lucide-blocks',
 	'input': 'i-lucide-sliders-horizontal',
+	'interface': 'i-lucide-blocks',
 	'color': 'i-lucide-palette',
 	'ui': 'i-lucide-bell'
 }
 
 const categoryLabels: Record<ComponentCategory, string> = {
-	'interface': 'Interface',
 	'input': 'Input',
+	'interface': 'Interface',
 	'color': 'Color',
 	'ui': 'UI'
 }
@@ -128,7 +130,7 @@ function selectEntry(entry: RegistryEntry) {
 		optionValues.value[opt.key] = opt.default ?? (opt.type === 'boolean' ? false : '')
 	}
 	attributeValue.value = ''
-	attributeType.value = ''
+	attributeType.value = entry.defaultAttribute
 }
 
 function goBack() {
@@ -146,17 +148,33 @@ function toggleCategory(cat: ComponentCategory) {
 	activeCategory.value = activeCategory.value === cat ? null : cat
 }
 
+
 function save() {
 	if (!selectedEntry.value) return
+	const noOptions = selectedEntry.value.options.length > 0 && !attributeValue.value;
+	const noAttributeType = selectedEntry.value.options.length > 0 && !attributeType.value;
+	const notInnerBlocks = selectedEntry.value.name !== 'InnerBlocks';
+	if (noOptions && notInnerBlocks) {
+		nextTick(() => {
+			attributeValueRef.value?.inputRef?.focus?.()
+		})
+		return
+	}
+	if (noAttributeType && notInnerBlocks) {
+		nextTick(() => {
+			attributeTypeRef.value?.triggerRef?.focus?.()
+		})
+		return
+	}
 	emit('save', {
 		registryName: selectedEntry.value.name,
 		options: { ...optionValues.value },
 		attributeValue: attributeValue.value,
-		attributeType: attributeType.value
+		attributeType: attributeType.value,
+		registryPackage: selectedEntry.value.registryPackage,
 	})
 	emit('update:open', false)
 }
-
 
 </script>
 
@@ -164,7 +182,7 @@ function save() {
 	<UModal
 		:open="open"
 		:title="modalTitle"
-		:ui="{ wrapper: 'sm:max-w-lg' }"
+		:ui="{ content: 'sm:w-[800px] max-w-full!' }"
 		@update:open="emit('update:open', $event)"
 	>
 		<template #body>
@@ -188,7 +206,7 @@ function save() {
 						:label="categoryLabels[cat]"
 						:icon="categoryIcons[cat]"
 						:variant="activeCategory === cat ? 'solid' : 'outline'"
-						size="xs"
+						size="sm"
 						@click="toggleCategory(cat)"
 					/>
 				</div>
@@ -217,9 +235,9 @@ function save() {
 							<UBadge
 								:label="contextLabels[entry.context]"
 								variant="subtle"
-								size="xs"
+								size="sm"
 							/>
-							<span class="text-[10px] text-gray-400 dark:text-gray-500">{{ entry.package.replace('@wordpress/', '@wp/') }}</span>
+							<span class="text-[11px] text-gray-400 dark:text-gray-500">{{ entry.registryPackage.replace('@wordpress/', '@wp/') }}</span>
 						</div>
 					</button>
 
@@ -244,19 +262,19 @@ function save() {
 						:style="{ backgroundColor: selectedEntry.color }"
 					/>
 					<span class="font-medium text-sm">{{ selectedEntry.name }}</span>
-					<span class="text-xs text-gray-400">{{ selectedEntry.package }}</span>
+					<span class="text-xs text-gray-400">{{ selectedEntry.registryPackage }}</span>
 					<div class="ml-auto flex items-center gap-1.5">
 						<UBadge
 							:label="contextLabels[selectedEntry.context]"
 							variant="subtle"
-							size="xs"
+							size="sm"
 						/>
 						<UBadge
 							v-if="selectedEntry.canHaveChildren"
 							label="container"
 							variant="subtle"
 							color="warning"
-							size="xs"
+							size="sm"
 						/>
 					</div>
 				</div>
@@ -285,6 +303,9 @@ function save() {
 							v-else-if="opt.type === 'select'"
 							:label="opt.label"
 							:hint="opt.hint"
+							:ui="{
+								hint: 'text-xs leading-[1.6]',
+							}"
 						>
 							<USelect
 								:model-value="String(optionValues[opt.key] ?? '')"
@@ -299,6 +320,9 @@ function save() {
 							v-else-if="opt.type === 'number'"
 							:label="opt.label"
 							:hint="opt.hint"
+							:ui="{
+								hint: 'text-xs leading-[1.6]',
+							}"
 						>
 							<UInput
 								:model-value="String(optionValues[opt.key] ?? '')"
@@ -313,6 +337,9 @@ function save() {
 							v-else
 							:label="opt.label"
 							:hint="opt.hint"
+							:ui="{
+								hint: 'text-xs leading-[1.6]',
+							}"
 						>
 							<UInput
 								:model-value="String(optionValues[opt.key] ?? '')"
@@ -330,30 +357,38 @@ function save() {
 				</p>
 
 				<!-- Value Attribute -->
-				<template v-if="selectedEntry.options.length > 0">
+				<template v-if="selectedEntry.options.length > 0 && selectedEntry.name !== 'InnerBlocks'">
 					<UFormField
 						:ui="{
 							labelWrapper: 'block mb-2',
+							help: 'text-xs leading-[1.6]',
 						}"
 						label="Attribute Name"
 						help="The block.json attribute name whose value this component reads from or writes to (e.g. 'content', 'url'). Maps the component's onChange/value props to your block's registered attributes, enabling data persistence in the Block Editor."
 					>
 						<UInput
+							ref="attributeValueRef"
 							v-model="attributeValue"
 							placeholder="e.g. myTextValue OR myBackgroundColor"
 							class="w-full"
+							required
 						/>
 					</UFormField>
 
 					<UFormField
+						:ui="{
+							help: 'text-xs leading-[1.6]',
+						}"
 						label="Attribute Type"
 						help="The type declared for this attribute in block.json. Used to generate the correct attribute schema."
 					>
 						<USelect
+							ref="attributeTypeRef"
 							v-model="attributeType"
 							:items="attributeTypeOptions"
 							class="w-full"
 							placeholder="Select Type"
+							required
 						/>
 					</UFormField>
 				</template>

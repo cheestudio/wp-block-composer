@@ -7,7 +7,6 @@ definePageMeta({ middleware: ['require-components'] })
 useSeoMeta({ title: 'Configure — WP Block Composer' })
 </script>
 
-
 <template>
 	<div>
 		<h2 class="text-2xl font-semibold mb-2">
@@ -32,8 +31,5 @@ useSeoMeta({ title: 'Configure — WP Block Composer' })
 				</div>
 			</div>
 		</div>
-
-
-
 	</div>
 </template>

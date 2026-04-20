@@ -8,25 +8,19 @@ const RequestSchema = z.object({
 
 type BlockJson = Record<string, unknown>
 
-const omitEmpty = <T>(val: T[] | undefined): T[] | undefined =>
-  val && val.length > 0 ? val : undefined
-
-const omitBlank = (val: string | undefined | null): string | undefined =>
-  val && val.trim().length > 0 ? val.trim() : undefined
+const omitEmpty = <T>(val: T[] | undefined): T[] | undefined => val && val.length > 0 ? val : undefined
+const omitBlank = (val: string | undefined | null): string | undefined => val && val.trim().length > 0 ? val.trim() : undefined;
+const omitEmptyObject = <T extends Record<string, unknown>>(value: T | undefined | null): T | undefined => value && Object.keys(value).length > 0 ? value : undefined;
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+	const body = await readBody(event)
   const parsed = RequestSchema.safeParse(body)
 
   if (!parsed.success) {
-    throw createError({ statusCode: 400, message: 'Invalid block configuration', data: parsed.error.flatten() })
+		throw createError({ statusCode: 400, message: 'Invalid block configuration', data: parsed.error.flatten() })
   }
-
+	
   const { blockOptions, blockType } = parsed.data
-
-  const icon = omitBlank(blockOptions.icon)
-    ? `dashicons-${blockOptions.icon!.replace(/^dashicons-/, '')}`
-    : undefined
 
   const blockJson: BlockJson = {
     $schema: 'https://schemas.wp.org/trunk/block.json',
@@ -36,19 +30,21 @@ export default defineEventHandler(async (event) => {
     title: blockOptions.title,
     ...(omitBlank(blockOptions.description) && { description: blockOptions.description }),
     category: blockOptions.category,
-    ...(icon && { icon }),
+    icon: blockOptions.icon,
     ...(omitEmpty(blockOptions.keywords) && { keywords: blockOptions.keywords }),
     ...(omitBlank(blockOptions.textdomain) && { textdomain: blockOptions.textdomain }),
     ...(omitEmpty(blockOptions.parent) && { parent: blockOptions.parent }),
     ...(omitEmpty(blockOptions.ancestor) && { ancestor: blockOptions.ancestor }),
     ...(omitEmpty(blockOptions.allowedBlocks) && { allowedBlocks: blockOptions.allowedBlocks }),
-    attributes: {},
     ...(blockOptions.supports && { supports: blockOptions.supports }),
     editorScript: 'file:./index.js',
     style: 'file:./style-index.css',
     editorStyle: 'file:./index.css',
     ...(blockType === 'dynamic' && { render: 'file:./render.php' }),
+		...(omitEmptyObject(blockOptions.attributes) && {attributes: blockOptions.attributes}),
   }
 
-  return blockJson
+  return {
+    markdown: '```json\n' + JSON.stringify(blockJson, null, 2) + '\n```'
+  }
 })

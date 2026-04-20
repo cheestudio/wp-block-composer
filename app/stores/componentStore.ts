@@ -9,7 +9,8 @@ export interface ComponentItem {
   order: number
   options: Record<string, unknown>
   attributeValue: string
-  attributeType: string
+  attributeType: string,
+	registryPackage: string
 }
 
 export interface TreeNode {
@@ -99,13 +100,12 @@ export const useComponentStore = defineStore('component', () => {
 
   // ── CRUD actions ───────────────────────────────────────────
 
-  function addComponent(registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string): string | undefined {
+  function addComponent(registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string, registryPackage: string): string | undefined {
     const entry = findRegistryEntry(registryName)
     if (!entry) return undefined
 
     const id = uuidv4()
     const rootCount = items.value.filter(i => i.parentId === null).length
-
     items.value.push({
       id,
       registryName,
@@ -114,7 +114,8 @@ export const useComponentStore = defineStore('component', () => {
       order: rootCount,
       options,
       attributeValue,
-      attributeType
+      attributeType,
+			registryPackage: registryPackage
     })
 
     return id
