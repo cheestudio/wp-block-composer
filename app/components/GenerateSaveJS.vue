@@ -23,7 +23,6 @@ const handleGenerateSaveJs = async () => {
 		return
 	}
 	isLoading.value = true
-	generatedSaveJs.value = null
 
 	try {
 		const { message } = await $fetch<{ message: Anthropic.Message['content'] }>('/api/generateSaveJs', {
@@ -73,13 +72,14 @@ const handleGenerateSaveJs = async () => {
 			<UButton
 				:loading="isLoading"
 				:disabled="!items.length"
-				color="primary"
+				color="secondary"
+				:variant="generatedSaveJs ? 'solid' : 'outline'"
 				size="lg"
 				class="w-full justify-center"
 				aria-label="Generate save.js file"
 				@click="handleGenerateSaveJs"
 			>
-				Generate save.js
+				{{ generatedSaveJs ? 'Re-generate save.js' : 'Generate save.js' }}
 			</UButton>
 		</div>
 
@@ -90,7 +90,7 @@ const handleGenerateSaveJs = async () => {
 				</h3>
 			</div>
 
-			<div v-if="generatedSaveJs">
+			<div v-if="generatedSaveJs && !isLoading">
 				<MDC class="[&_>div.group]:m-0!" :value="formattedSource" />
 			</div>
 

@@ -26,6 +26,7 @@ const componentStore = useComponentStore()
         icon="i-lucide-arrow-right"
         trailing
         color="primary"
+				variant="outline"
         :disabled="componentStore.isEmpty"
         to="/configure"
       />

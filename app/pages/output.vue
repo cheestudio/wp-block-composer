@@ -25,6 +25,8 @@ interface DownloadConfig {
 	fileType?: FileType;
 }
 
+const isDownloadingZip = ref(false)
+
 const handleDownload = (config: DownloadConfig) => {
 	if (!config.content) return;
 
@@ -43,6 +45,35 @@ const handleDownload = (config: DownloadConfig) => {
 	a.click();
 	URL.revokeObjectURL(url);
 };
+
+const handleDownloadZip = async () => {
+	isDownloadingZip.value = true
+
+	try {
+		const response = await $fetch<Blob>('/api/downloadZip', {
+			method: 'POST',
+			body: {
+				blockJson: formattedJson.value,
+				indexJs: formattedIndexJs.value,
+				editJs: generatedEditJs.value,
+				saveJs: generatedSaveJs.value,
+			},
+			responseType: 'blob',
+		})
+
+		const blob = new Blob([response], { type: 'application/zip' })
+		const url = URL.createObjectURL(blob)
+		const a = document.createElement('a')
+		a.href = url
+		a.download = 'wp-block.zip'
+		a.click()
+		URL.revokeObjectURL(url)
+	} catch (error) {
+		console.error('Failed to download ZIP:', error)
+	} finally {
+		isDownloadingZip.value = false
+	}
+}
 
 </script>
 
@@ -99,6 +130,20 @@ const handleDownload = (config: DownloadConfig) => {
 				@click="handleDownload({ content: generatedSaveJs, filename: 'save.js', mimeType: 'application/javascript' })"
 			>
 				Download save.js
+			</UButton>
+		</div>
+
+		<div class="mt-6">
+			<UButton
+				color="secondary"
+				size="lg"
+				class="w-full justify-center"
+				aria-label="Download all files as ZIP"
+				:disabled="!formattedJson && !formattedIndexJs && !generatedEditJs && !generatedSaveJs"
+				:loading="isDownloadingZip"
+				@click="handleDownloadZip"
+			>
+				Download All Files (ZIP)
 			</UButton>
 		</div>
 

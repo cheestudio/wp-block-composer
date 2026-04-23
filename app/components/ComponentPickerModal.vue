@@ -25,7 +25,7 @@ const optionValues = ref<Record<string, unknown>>({})
 const attributeValueRef = useTemplateRef('attributeValueRef')
 const attributeTypeRef = useTemplateRef('attributeTypeRef')
 const attributeValue = ref('')
-const attributeType = ref('')
+const attributeType = ref('');
 
 const attributeTypeOptions = [
 	{ label: 'string', value: 'string' },
@@ -131,6 +131,9 @@ function selectEntry(entry: RegistryEntry) {
 	}
 	attributeValue.value = ''
 	attributeType.value = entry.defaultAttribute
+	nextTick(() => {
+		attributeValueRef.value?.inputRef?.focus?.()
+	})
 }
 
 function goBack() {

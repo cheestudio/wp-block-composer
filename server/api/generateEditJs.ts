@@ -65,7 +65,6 @@ ${componentListJson}`
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event)
 	const parsed = RequestSchema.safeParse(body)
-	console.log('body',parsed.data);
 
 	if (!parsed.success) {
 		throw createError({ statusCode: 400, message: 'Invalid request', data: parsed.error.flatten() })

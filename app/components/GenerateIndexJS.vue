@@ -22,9 +22,9 @@ const handleGenerateIndexJs = async () => {
 	}
 
 	isLoading.value = true
-	generatedIndexJs.value = null
 
 	try {
+		await delay(1500);
 		generatedIndexJs.value = await $fetch<{ markdown: string }>('/api/generateIndexJs', {
 			method: 'POST',
 			body: { componentObjects: items.value, blockType: blockType.value },
@@ -70,13 +70,14 @@ const handleGenerateIndexJs = async () => {
 			<UButton
 				:loading="isLoading"
 				:disabled="!items.length"
-				color="primary"
+				color="secondary"
+				:variant="generatedIndexJs ? 'solid' : 'outline'"
 				size="lg"
 				class="w-full justify-center"
 				aria-label="Generate index.js file"
 				@click="handleGenerateIndexJs"
 			>
-				Generate index.js
+				{{ generatedIndexJs ? 'Re-generate index.js' : 'Generate index.js' }}
 			</UButton>
 		</div>
 
@@ -88,7 +89,7 @@ const handleGenerateIndexJs = async () => {
 			</div>
 
 			<div
-				v-if="generatedIndexJs"
+				v-if="generatedIndexJs && !isLoading"
 			>
 			<MDC class="[&_>div.group]:m-0!" :value="formattedSource" />
 			</div>

@@ -25,11 +25,7 @@ useSeoMeta({ title: 'Configure — WP Block Composer' })
 					<BlockOptions />
 				</div>
 			</div>
-			<div class="selected-components">
-				<div class="bg-white/5 p-4 rounded-lg sticky top-10">
-					<SelectedComponents />
-				</div>
-			</div>
+			<SelectedComponents />
 		</div>
 	</div>
 </template>

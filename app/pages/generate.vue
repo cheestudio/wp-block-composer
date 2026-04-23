@@ -9,22 +9,22 @@ useSeoMeta({ title: 'Generate — WP Block Composer' });
 const items: TabsItem[] = [
 	{
 		label: 'block.json',
-		icon: 'i-lucide-user',
+		icon: 'i-lucide-file',
 		slot: 'json' as const
 	},
 	{
 		label: 'index.js',
-		icon: 'i-lucide-lock',
+		icon: 'i-lucide-file',
 		slot: 'index' as const
 	},
 	{
 		label: 'edit.js',
-		icon: 'i-lucide-lock',
+		icon: 'i-lucide-file',
 		slot: 'edit' as const
 	},
 	{
 		label: 'save.js',
-		icon: 'i-lucide-lock',
+		icon: 'i-lucide-file',
 		slot: 'save' as const
 	},
 ];

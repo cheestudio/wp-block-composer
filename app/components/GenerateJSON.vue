@@ -36,11 +36,11 @@ const handleGenerateJSON = async () => {
 			...blockOptions.value,
 			attributes: blockAttributes
 		}
-
+		await delay(1500);
 		blockJson.value = await $fetch<{ markdown: string }>('/api/generateBlockJson', {
 			method: 'POST',
 			body: { blockOptions: mergedBlockOptions, blockType: blockType.value },
-		})
+		});
 	} catch (error) {
 		console.log(error);
 		toast.add({ title: 'Generation failed', description: 'Could not build block.json. Check your configuration.', color: 'error' })
@@ -125,13 +125,14 @@ const handleGenerateJSON = async () => {
 			<UButton
 				:loading="isLoading"
 				:disabled="!blockOptions"
-				color="primary"
+				color="secondary"
+				:variant="blockJson ? 'solid' : 'outline'"
 				size="lg"
 				class="w-full justify-center"
 				aria-label="Generate block.json file"
 				@click="handleGenerateJSON"
 			>
-				Generate block.json
+				{{ blockJson ? 'Re-generate block.json' : 'Generate block.json' }}
 			</UButton>
 		</div>
 
@@ -143,7 +144,7 @@ const handleGenerateJSON = async () => {
 			</div>
 
 			<div
-				v-if="blockJson"
+				v-if="blockJson && !isLoading"
 			>
 				<MDC class="[&_>div.group]:m-0!" :value="formattedJson" />
 			</div>

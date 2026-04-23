@@ -52,23 +52,37 @@ itemsObjects.forEach((item) => {
 
 </script>
 <template>
-	<h4 class="mb-0 text-[15px] font-sans">Selected Components:</h4>
-	<UTree
-		color="secondary"
-		:items="tree"
-		:ui="{
-			root: 'my-5 border border-monokai-blue/20 rounded-md',
-			item: 'py-1',
-		}"
-	/>
+	<div class="selected-components">
+		<div class="sticky top-10">
+			<div class="bg-white/5 p-4 rounded-lg">
+				<h4 class="mb-0 text-[15px] font-sans">Selected Components:</h4>
+				<UTree
+					color="secondary"
+					:items="tree"
+					:ui="{
+						root: 'my-5 border border-monokai-blue/20 rounded-md',
+						item: 'py-1',
+					}"
+				/>
 
-	<h4 class="mb-2 text-[15px] font-sans">Status:</h4>
-	<UProgress
-		v-model="configSaved"
-		:status="false"
-		:color="configSaved > 1 ? 'success' : configSaved > 0 ? 'warning' : 'success'"
-		:max="['Awaiting changes...', 'Reticulating...', 'Saved']"
-	/>
-
-
+				<h4 class="mb-2 text-[15px] font-sans">Status:</h4>
+				<UProgress
+					v-model="configSaved"
+					:status="false"
+					:color="configSaved > 1 ? 'success' : configSaved > 0 ? 'warning' : 'success'"
+					:max="['Awaiting changes...', 'Reticulating...', 'Saved']"
+				/>
+			</div>
+			<div class="flex justify-end mt-10">
+				<UButton
+					label="Next: Compile"
+					icon="i-lucide-arrow-right"
+					trailing
+					color="success"
+					variant="outline"
+					to="/generate"
+				/>
+			</div>
+		</div>
+	</div>
 </template>

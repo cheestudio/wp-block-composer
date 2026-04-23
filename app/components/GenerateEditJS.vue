@@ -2,7 +2,7 @@
 	setup
 	lang="ts"
 >
-import type OpenAI from 'openai';
+import type Anthropic from '@anthropic-ai/sdk';
 
 const componentStore = useComponentStore()
 const blockFileStore = useBlockFileStore()
@@ -23,17 +23,15 @@ const handleGenerateEditJS = async () => {
 		return
 	}
 	isLoading.value = true
-	generatedEditJs.value = null
-	
 	try {
-
-		const { message } = await $fetch<{ message: OpenAI.Chat.Completions.ChatCompletionMessageParam }>('/api/generateEditJsGLM', {
+		const { message } = await $fetch<{ message: Anthropic.Message['content'] }>('/api/generateEditJs', {
 			method: 'POST',
 			body: { blockType: blockType.value, blockConfig:blockConfigState.value, components:items.value},
 		});
 
-		const contentBlock = message;
-		generatedEditJs.value = contentBlock;
+		const contentBlock = message[0]
+		generatedEditJs.value = contentBlock && contentBlock.type === 'text' ? contentBlock.text : null;
+
 	} catch(error) {
 		console.log(error);
 		toast.add({ title: 'Generation failed', description: 'Could not build index.js.', color: 'error' })
@@ -75,13 +73,14 @@ const handleGenerateEditJS = async () => {
 			<UButton
 				:loading="isLoading"
 				:disabled="!items.length"
-				color="primary"
+				color="secondary"
+				:variant="generatedEditJs ? 'solid' : 'outline'"
 				size="lg"
 				class="w-full justify-center"
 				aria-label="Generate index.js file"
 				@click="handleGenerateEditJS"
 			>
-				Generate edit.js
+				{{ generatedEditJs ? 'Re-generate edit.js' : 'Generate edit.js' }}
 			</UButton>
 		</div>
 
@@ -93,7 +92,7 @@ const handleGenerateEditJS = async () => {
 			</div>
 
 			<div 
-			v-if="generatedEditJs" 
+			v-if="generatedEditJs && !isLoading" 
 			>
 			<MDC class="[&_>div.group]:m-0!" :value="formattedSource" />
 			</div>
