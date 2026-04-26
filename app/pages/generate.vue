@@ -5,6 +5,8 @@
 import type { TabsItem } from '@nuxt/ui';
 definePageMeta({ middleware: ['require-components'] })
 useSeoMeta({ title: 'Generate — WP Block Composer' });
+const blockConfigStore = useBlockConfigStore()
+const {blockType} = storeToRefs(blockConfigStore)
 
 const items: TabsItem[] = [
 	{
@@ -23,7 +25,7 @@ const items: TabsItem[] = [
 		slot: 'edit' as const
 	},
 	{
-		label: 'save.js',
+		label: blockType.value === 'dynamic' ? 'render.php' : 'save.js',
 		icon: 'i-lucide-file',
 		slot: 'save' as const
 	},

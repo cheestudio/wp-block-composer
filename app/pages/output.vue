@@ -50,7 +50,7 @@ const handleDownloadZip = async () => {
 	isDownloadingZip.value = true
 
 	try {
-		const response = await $fetch<Blob>('/api/downloadZip', {
+		const response = await $fetch<Blob>('/api/generateZip', {
 			method: 'POST',
 			body: {
 				blockJson: formattedJson.value,
@@ -83,69 +83,112 @@ const handleDownloadZip = async () => {
 			Step 4: Code Output
 		</h2>
 		<p class="text-gray-500 dark:text-gray-400 mb-6">
-			View generated files with syntax highlighting, copy individual files, or download everything as a ZIP.
+			Download files individually, or the entire block as a zip file.
 		</p>
 
+		<div class="max-w-2xl mx-auto">
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<UTooltip
+					text="Generate this file first"
+					:disabled="!!formattedJson"
+					side="bottom"
+					:delay-duration="0"
+					:arrow=true
+				>
+					<UButton
+						color="primary"
+						size="lg"
+						class="justify-center"
+						aria-label="Download block.json"
+						:disabled="!formattedJson"
+						:variant="formattedJson ? 'solid' : 'outline'"
+						icon="i-lucide-download"
+						@click="handleDownload({ content: formattedJson, filename: 'block.json', mimeType: 'application/json', fileType: 'json' })"
+					>
+						block.json
+					</UButton>
+				</UTooltip>
 
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-			<UButton
-				color="primary"
-				size="lg"
-				class="justify-center"
-				aria-label="Download block.json"
-				:disabled="!formattedJson"
-				@click="handleDownload({ content: formattedJson, filename: 'block.json', mimeType: 'application/json', fileType: 'json' })"
-			>
-				Download block.json
-			</UButton>
+				<UTooltip
+					text="Generate this file first"
+					:disabled="!!formattedIndexJs"
+					side="bottom"
+					:delay-duration="0"
+					:arrow=true
+				>
+				<UButton
+					color="primary"
+					size="lg"
+					class="justify-center"
+					aria-label="Download index.js"
+					:disabled="!formattedIndexJs"
+					:variant="formattedIndexJs ? 'solid' : 'outline'"
+					icon="i-lucide-download"
+					@click="handleDownload({ content: formattedIndexJs, filename: 'index.js', mimeType: 'application/javascript', fileType: 'javascript' })"
+				>
+					index.js
+				</UButton>
+				</UTooltip>
+				<UTooltip
+					text="Generate this file first"
+					:disabled="!!generatedEditJs"
+					side="bottom"
+					:delay-duration="0"
+					:arrow=true
+				>
+				<UButton
+					color="primary"
+					size="lg"
+					class="justify-center"
+					aria-label="Download edit.js"
+					:disabled="!generatedEditJs"
+					:variant="generatedEditJs ? 'solid' : 'outline'"
+					icon="i-lucide-download"
+					@click="handleDownload({ content: generatedEditJs, filename: 'edit.js', mimeType: 'application/javascript' })"
+				>
+					edit.js
+				</UButton>
+				</UTooltip>
+				<UTooltip
+					text="Generate this file first"
+					:disabled="!!generatedSaveJs"
+					side="bottom"
+					:delay-duration="0"
+					:arrow=true
+				>
+				<UButton
+					color="primary"
+					size="lg"
+					class="justify-center"
+					aria-label="Download save.js"
+					:disabled="!generatedSaveJs"
+					:variant="generatedSaveJs ? 'solid' : 'outline'"
+					icon="i-lucide-download"
+					@click="handleDownload({ content: generatedSaveJs, filename: 'save.js', mimeType: 'application/javascript' })"
+				>
+					save.js
+				</UButton>
+				</UTooltip>
+			</div>
 
-			<UButton
-				color="primary"
-				size="lg"
-				class="justify-center"
-				aria-label="Download index.js"
-				:disabled="!formattedIndexJs"
-				@click="handleDownload({ content: formattedIndexJs, filename: 'index.js', mimeType: 'application/javascript', fileType: 'javascript' })"
-			>
-				Download index.js
-			</UButton>
+			<div class="mt-6 text-center">
+				<UButton
+					color="secondary"
+					size="lg"
+					class="w-full max-w-[300px] justify-center mx-auto cursor-pointer"
+					aria-label="Download all files as ZIP"
+					:disabled="!formattedJson && !formattedIndexJs && !generatedEditJs && !generatedSaveJs"
+					:loading="isDownloadingZip"
+					:icon="!formattedJson && !formattedIndexJs && !generatedEditJs && !generatedSaveJs ? '' : 'i-lucide-download'"
+					@click="handleDownloadZip"
+				>
+					{{ !formattedJson && !formattedIndexJs && !generatedEditJs && !generatedSaveJs ? 'Generate files first' : 'Download All Files (ZIP)' }}
 
-			<UButton
-				color="primary"
-				size="lg"
-				class="justify-center"
-				aria-label="Download edit.js"
-				:disabled="!generatedEditJs"
-				@click="handleDownload({ content: generatedEditJs, filename: 'edit.js', mimeType: 'application/javascript' })"
-			>
-				Download edit.js
-			</UButton>
-
-			<UButton
-				color="primary"
-				size="lg"
-				class="justify-center"
-				aria-label="Download save.js"
-				:disabled="!generatedSaveJs"
-				@click="handleDownload({ content: generatedSaveJs, filename: 'save.js', mimeType: 'application/javascript' })"
-			>
-				Download save.js
-			</UButton>
+				</UButton>
+			</div>
 		</div>
 
-		<div class="mt-6">
-			<UButton
-				color="secondary"
-				size="lg"
-				class="w-full justify-center"
-				aria-label="Download all files as ZIP"
-				:disabled="!formattedJson && !formattedIndexJs && !generatedEditJs && !generatedSaveJs"
-				:loading="isDownloadingZip"
-				@click="handleDownloadZip"
-			>
-				Download All Files (ZIP)
-			</UButton>
-		</div>
+		<BlockFaqAccordion />
 
 	</div>
 </template>

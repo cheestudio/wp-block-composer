@@ -4,7 +4,14 @@ export default defineNuxtConfig({
 		'@nuxt/eslint',
 		'@nuxt/ui',
 		'@pinia/nuxt',
-		'@nuxtjs/mdc'
+		'@nuxtjs/mdc',
+		'motion-v/nuxt'
+	],
+	components: [
+		{
+			path: '~/components', 
+			pathPrefix: false,
+		},
 	],
 	mdc: {
 		highlight: {
@@ -20,7 +27,7 @@ export default defineNuxtConfig({
 	// 	enabled: true
 	// },
 	css: ['~/assets/css/main.css'],
-	debug: true,
+	debug: false,
 	runtimeConfig: {
 		// Server-only — never exposed to client
 		anthropicApiKey: '',

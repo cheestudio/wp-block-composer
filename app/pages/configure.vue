@@ -2,7 +2,6 @@
 	setup
 	lang="ts"
 >
-
 definePageMeta({ middleware: ['require-components'] })
 useSeoMeta({ title: 'Configure — WP Block Composer' })
 </script>

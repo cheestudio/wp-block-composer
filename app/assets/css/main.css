@@ -72,6 +72,11 @@ body {
 	p a {
 		@apply underline decoration-1 decoration-monokai-yellow underline-offset-5 decoration-dashed hover:decoration-solid hover:decoration-monokai-red hover:underline-offset-2 hover:decoration-2 transition-all
 	}
+
+	button {
+		@apply cursor-pointer;
+	}
+
 }
 
 .page-enter-active,
