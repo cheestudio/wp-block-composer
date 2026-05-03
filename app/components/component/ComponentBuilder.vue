@@ -1,0 +1,118 @@
+<script
+	setup
+	lang="ts"
+>
+import type { ComponentItem } from '~/stores/componentStore'
+
+const componentStore = useComponentStore()
+
+const pickerOpen = ref(false)
+const editingItem = ref<ComponentItem | null>(null)
+
+function openAddModal() {
+	editingItem.value = null
+	pickerOpen.value = true
+}
+
+function openEditModal(item: ComponentItem) {
+	editingItem.value = item
+	pickerOpen.value = true
+}
+
+function handleSave(data: { registryName: string, options: Record<string, unknown>, attributeValue: string, attributeType: string, registryPackage: string }) {
+	if (editingItem.value) {
+		componentStore.updateComponent(editingItem.value.id, {
+			options: data.options,
+			attributeValue: data.attributeValue,
+			attributeType: data.attributeType
+		})
+	} else {
+		componentStore.addComponent(data.registryName, data.options, data.attributeValue, data.attributeType, data.registryPackage)
+	}
+	editingItem.value = null
+}
+
+function handleModalClose(open: boolean) {
+	pickerOpen.value = open
+	if (!open) {
+		editingItem.value = null
+	}
+}
+
+const componentCount = computed(() => componentStore.items.length)
+const maxDepth = computed(() => {
+	const flat = componentStore.flatOrdered
+	return flat.length > 0 ? Math.max(...flat.map(f => f.depth)) + 1 : 0
+})
+</script>
+
+<template>
+	<div>
+		<!-- Empty state -->
+		<div
+			v-if="componentStore.isEmpty"
+			class="flex flex-col items-center justify-center py-16 text-center"
+		>
+			<UIcon
+				name="i-lucide-blocks"
+				class="w-12 h-12 text-gray-300 mb-4"
+			/>
+			<h3 class="text-lg font-medium text-monokai-yellow/40  mb-2">
+				No components added
+			</h3>
+			<p class="text-sm text-white/70 mb-6 max-w-full">
+				Add components to compose your block's editor interface. 
+			</p>
+			<UButton
+				label="Add Component"
+				icon="i-lucide-plus"
+				color="secondary"
+				size="lg"
+				@click="openAddModal"
+			/>
+		</div>
+
+		<!-- Component list -->
+		<div v-else>
+			<!-- Summary bar -->
+			<div class="flex items-center justify-between mb-4">
+				<div class="flex items-center gap-3">
+					<span class="text-sm text-monokai-gutter ">
+						{{ componentCount }} component{{ componentCount !== 1 ? 's' : '' }}
+						<template v-if="maxDepth > 1"> &middot; {{ maxDepth }} levels deep</template>
+					</span>
+					<UBadge
+						v-if="componentStore.hasContainerWithoutChildren"
+						label="Empty containers"
+						icon="i-lucide-alert-triangle"
+						color="warning"
+						variant="subtle"
+						size="sm"
+					/>
+				</div>
+
+
+			</div>
+
+			<!-- Order list -->
+			<ComponentOrderList @edit="openEditModal" />
+			<div class="flex justify-center mt-4">
+				<UButton
+					label="Add Component"
+					icon="i-lucide-plus"
+					color="primary"
+					size="sm"
+					@click="openAddModal"
+				/>
+			</div>
+		</div>
+
+		<!-- Picker modal -->
+		<ComponentPickerModal
+			:open="pickerOpen"
+			:edit-item="editingItem"
+			@update:open="handleModalClose"
+			@save="handleSave"
+		/>
+	</div>
+</template>
