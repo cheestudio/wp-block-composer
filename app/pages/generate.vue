@@ -4,7 +4,8 @@
 >
 import type { TabsItem } from '@nuxt/ui';
 definePageMeta({ middleware: ['require-components'] })
-useSeoMeta({ title: 'Generate — WP Block Composer' });
+useSeoMeta({ title: 'WP Block Composer — Generate' })
+
 const blockConfigStore = useBlockConfigStore()
 const blockFileStore = useBlockFileStore()
 const { blockType } = storeToRefs(blockConfigStore);

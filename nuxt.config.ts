@@ -32,8 +32,6 @@ export default defineNuxtConfig({
 		// Server-only — never exposed to client
 		anthropicApiKey: '',
 		glmApiKey: '',
-		claudeModel: 'claude-sonnet-4-20250514',
-		claudeMaxTokens: 8000,
 		bundleDir: './.bundles',
 		bundleTtlMs: 3600000,
 		public: {}

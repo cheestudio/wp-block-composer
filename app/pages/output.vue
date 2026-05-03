@@ -3,7 +3,7 @@
 	lang="ts"
 >
 definePageMeta({ middleware: ['require-components'] })
-useSeoMeta({ title: 'Output — WP Block Composer' })
+useSeoMeta({ title: 'WP Block Composer — Download' })
 
 type FileType = 'json' | 'javascript';
 interface DownloadConfig {

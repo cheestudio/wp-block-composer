@@ -3,7 +3,7 @@
 	lang="ts"
 >
 definePageMeta({ middleware: ['require-components'] })
-useSeoMeta({ title: 'Configure — WP Block Composer' })
+useSeoMeta({ title: 'WP Block Composer — Configure' })
 </script>
 
 <template>
