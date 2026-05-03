@@ -34,7 +34,9 @@ export default defineNuxtConfig({
 		glmApiKey: '',
 		bundleDir: './.bundles',
 		bundleTtlMs: 3600000,
-		public: {}
+		public: {
+			gtagId: 'G-2MB3P2XRFC',
+		}
 	},
 
 	typescript: {
