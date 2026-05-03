@@ -18,7 +18,11 @@ useHead({
 
 useSeoMeta({
   title: 'WP Block Composer',
-  description: 'Compose and generate WordPress Gutenberg block scaffolding.'
+  description: 'Explore, compose and generate custom WordPress Blocks',
+	ogImage: "/opengraph.png",
+	twitterImage: "/opengraph.png",
+	twitterCard: "summary_large_image",
+	robots: 'index, follow',
 })
 </script>
 
