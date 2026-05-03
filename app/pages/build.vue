@@ -2,7 +2,7 @@
 	setup
 	lang="ts"
 >
-useSeoMeta({ title: 'WP Block Composer' })
+useSeoMeta({ title: 'WP Block Composer App' })
 
 const componentStore = useComponentStore()
 
