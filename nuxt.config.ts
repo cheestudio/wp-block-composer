@@ -35,7 +35,7 @@ export default defineNuxtConfig({
 		bundleDir: './.bundles',
 		bundleTtlMs: 3600000,
 		public: {
-			gtagId: 'G-2MB3P2XRFC',
+			gtagId: 'G-KWCRSCBW2D',
 		}
 	},
 
