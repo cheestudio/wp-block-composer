@@ -13,7 +13,7 @@ useHead({
 
 useSeoMeta({
   title: 'WP Block Composer',
-  description: 'Compose and generate production-ready WordPress Gutenberg block scaffolding.'
+  description: 'Compose and generate WordPress Gutenberg block scaffolding.'
 })
 </script>
 
