@@ -8,13 +8,6 @@ A dynamic WordPress block generation tool for exploring block configurations and
 
 WP Block Composer lets you visually compose the structure of a custom WordPress block by selecting and configuring components, then generates the corresponding boilerplate code.
 
-**Workflow:**
-
-1. **Build** (`/build`) — Select and arrange WordPress block components using the `ComponentBuilder`. Components can be nested (e.g., inside `InspectorControls`) via the context menu indent option. A "How to use this tool" modal is shown on first visit (tracked via `localStorage`).
-2. **Configure** (`/configure`) — Set block-level configuration options.
-3. **Generate** (`/generate`) — Preview and finalize the generated block code.
-4. **Output** (`/output`) — Copy or export the final block files.
-
 ## Who It's For
 
 - Developers pivoting into custom WordPress Block development who haven't worked much in React
