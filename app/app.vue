@@ -19,6 +19,7 @@ useHead({
 useSeoMeta({
   title: 'WP Block Composer',
 	ogTitle: 'WP Block Composer',
+	ogUrl: 'https://wpblockcomposer.app',
   description: 'Explore, compose and generate custom WordPress Blocks',
 	ogDescription: 'Explore, compose and generate custom WordPress Blocks',
 	twitterTitle: 'WP Block Composer',

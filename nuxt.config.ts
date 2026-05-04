@@ -27,6 +27,7 @@ export default defineNuxtConfig({
 	// 	enabled: true
 	// },
 	css: ['~/assets/css/main.css'],
+	ssr: true,
 	debug: false,
 	runtimeConfig: {
 		// Server-only — never exposed to client
@@ -36,6 +37,7 @@ export default defineNuxtConfig({
 		bundleTtlMs: 3600000,
 		public: {
 			gtagId: 'G-KWCRSCBW2D',
+			siteUrl: 'https://wpblockcomposer.app',
 		}
 	},
 

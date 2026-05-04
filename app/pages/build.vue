@@ -63,7 +63,14 @@ watch(isReady as Ref<boolean>, () => {
 		<div class="flex justify-between mt-8 pt-6 border-t border-monokai-blue/20">
 			<UModal
 				v-model:open="isModalOpen"
-				:ui="{ content: 'sm:w-[1000px] max-w-full!' }"
+				scrollable 
+				title="How to Use This Tool"
+				:ui="{ 
+					header: 'sm:px-10 border-none pb-0 max-sm:pt-15',
+					body: 'sm:px-10',
+					content: 'sm:w-[1000px] max-w-full!',
+					title: 'm-0'
+					}"
 			>
 				<UButton
 					label="How to use this tool"
@@ -71,19 +78,18 @@ watch(isReady as Ref<boolean>, () => {
 					color="neutral"
 					variant="soft"
 				/>
-				<template #content>
-					<div class="p-10">
-						<h2 class="mb-5">How to Use This Tool</h2>
 
+				<template #body>
+					<div class="">
 						<div class="flex gap-2 items-start">
-							<div class="flex-[0_1_70%]">
+							<div class="md:flex-[0_1_70%]">
 								<p class="text-lg text-monokai-yellow">WP Block Composer is a a dynamic block generation tool meant for exploring WordPress Block configurations and code generation.</p>
 								<p class="text-md">Use this tool to explore different components and configurations, generate customized boilerplate, and use it to learn more about how WordPress Blocks are constructed and configured.</p>
 							</div>
 
 							<UIcon
 								name="i-carbon-question-answering"
-								class="size-40 text-monokai-blue/90 relative -top-1 flex-1 block"
+								class="size-40 text-monokai-blue/90 relative -top-1 flex-1 block max-sm:hidden"
 								color="primary"
 							/>
 
