@@ -1,4 +1,3 @@
-<!-- GenerateEditJS.vue -->
 <script
 	setup
 	lang="ts"

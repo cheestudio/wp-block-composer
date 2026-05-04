@@ -11,8 +11,8 @@ const faqItems: FaqItem[] = [
 	{
 		label: 'Who is this tool for?',
 		content: `<ul>
-			<li>Developers who are wanting to pivot into writing Custom WordPress Blocks and write Block Themes, but haven&apos;t done much work in React</li>
-			<li>Having been using ACF Blocks and would like to begin developing more native WordPress components and UIs</li>
+			<li>Developers who are wanting to pivot into writing Custom WordPress Blocks and write Block Themes, but haven't done much work in React</li>
+			<li>Developers who have been using ACF Blocks and would like to begin developing more native WordPress components and UIs</li>
 			<li>Experienced developers who want a tool for generating boilerplate, and exploring the wide variety of UI components available.</li>
 		</ul>`,
 	},
