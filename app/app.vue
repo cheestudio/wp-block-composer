@@ -18,7 +18,11 @@ useHead({
 
 useSeoMeta({
   title: 'WP Block Composer',
+	ogTitle: 'WP Block Composer',
   description: 'Explore, compose and generate custom WordPress Blocks',
+	ogDescription: 'Explore, compose and generate custom WordPress Blocks',
+	twitterTitle: 'WP Block Composer',
+	twitterDescription: 'Explore, compose and generate custom WordPress Blocks',
 	ogImage: "https://wpblockcomposer.app/opengraph.png",
 	twitterImage: "https://wpblockcomposer.app/opengraph.png",
 	twitterCard: "summary_large_image",
