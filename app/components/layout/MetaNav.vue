@@ -6,7 +6,7 @@ const router = useRouter();
 </script>
 
 <template>
-	<div class="absolute t-1 md:top-4 right-4 flex items-center gap-3 z-120">
+	<div class="absolute t-1 md:top-4 right-4 flex items-center gap-3 z-90">
 		<UTooltip
 			text="Start Over"
 			:delay-duration="0"
